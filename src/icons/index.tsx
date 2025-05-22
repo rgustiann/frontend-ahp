@@ -51,7 +51,13 @@ import HorizontaLDots from "./horizontal-dots.svg";
 import ChatIcon from "./chat.svg";
 import MoreDotIcon from "./more-dot.svg";
 import BellIcon from "./bell.svg";
-
+import PagesDark from "./pages-dark.svg";
+import MenuDark from "./menu-dark.svg";
+import CalendarDark from "./calendar-dark.svg";
+import DocsDark from "./docs-dark.svg";
+import GridDark from "./grid-dark.svg";
+import ListDark from "./list-dark.svg";
+import TableDark from "./table-dark.svg";
 export {
   DownloadIcon,
   BellIcon,
@@ -106,4 +112,11 @@ export {
   HorizontaLDots,
   ChevronUpIcon,
   ChatIcon,
+  DocsDark,
+  CalendarDark,
+  ListDark,
+  PagesDark,
+  GridDark,
+  MenuDark,
+  TableDark
 };

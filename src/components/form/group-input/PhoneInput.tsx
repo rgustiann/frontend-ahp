@@ -45,7 +45,7 @@ const PhoneInput: React.FC<PhoneInputProps> = ({
   };
 
   return (
-    <div className="relative flex">
+    <div className="relative flex mb-4">
       {/* Dropdown position: Start */}
       {selectPosition === "start" && (
         <div className="absolute">
