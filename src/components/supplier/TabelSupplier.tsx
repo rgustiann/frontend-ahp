@@ -10,21 +10,10 @@ import {
 import { Modal } from "../ui/modal";
 import PhoneInput from "../form/group-input/PhoneInput";
 import ComponentCard from "../common/ComponentCard";
-
-interface Kriteria {
-  id: number;
-  kode: string;
-  nama: string;
-  pertimbangan: string;
-}
-interface Supplier {
-  id: number;
-  nama: string;
-  alamat: string;
-  contact: string;
-  nilaiKriteria: Record<string, number>;
-  keterangan: string;
-}
+import { Supplier } from "@/types/supplier";
+import { Kriteria } from "@/types/kriteria";
+// import { getKriteriaList } from "@/lib/api/kriteriaService";
+import { useAuth } from "@/context/AuthContext";
 
 const dummyKriteria: Kriteria[] = [
   {
@@ -53,11 +42,11 @@ const dummySuppliers: Supplier[] = [
     nama: "PT. Baja Jaya",
     alamat: "Jl. Merdeka No.10, Jakarta",
     contact: "0812-3456-7890",
-    nilaiKriteria: {
-      Harga: 85,
-      Kualitas: 90,
-      "Waktu Pengiriman": 75,
-    },
+    nilaiKriteria: [
+      { kriteriaId: 1, nilai: 80 },
+      { kriteriaId: 2, nilai: 70 },
+      { kriteriaId: 3, nilai: 90 },
+    ],
     keterangan: "Supplier utama untuk baja ringan",
   },
   {
@@ -65,16 +54,18 @@ const dummySuppliers: Supplier[] = [
     nama: "CV. Karya Logam",
     alamat: "Jl. Industri No.22, Surabaya",
     contact: "0821-7654-3210",
-    nilaiKriteria: {
-      Harga: 80,
-      Kualitas: 88,
-      "Waktu Pengiriman": 85,
-    },
+    nilaiKriteria: [
+      { kriteriaId: 1, nilai: 80 },
+      { kriteriaId: 2, nilai: 70 },
+      { kriteriaId: 3, nilai: 90 },
+    ],
     keterangan: "Pengiriman cepat, harga kompetitif",
   },
 ];
 
 export default function TabelSupplier() {
+  const { user } = useAuth();
+  // const [kriteriaList, setKriteriaList] = useState<Kriteria[]>([]);
   const [orders, setOrders] = useState<Supplier[]>(dummySuppliers);
   const [isOpen, setIsOpen] = useState(false);
   const [formData, setFormData] = useState<Supplier>({
@@ -82,10 +73,32 @@ export default function TabelSupplier() {
     nama: "",
     alamat: "",
     contact: "",
-    nilaiKriteria: {},
+    nilaiKriteria: [],
     keterangan: "",
   });
   const [isEdit, setIsEdit] = useState(false);
+
+  // useEffect(() => {
+  //   async function fetchKriteria() {
+  //     try {
+  //       const data = await getKriteriaList();
+  //       setKriteriaList(data);
+  //     } catch (error) {
+  //       console.error("Gagal load data kriteria:", error);
+  //     }
+  //   }
+  //   fetchKriteria();
+  // }, []);
+
+  // function getNilaiSupplierByKriteria(
+  //   supplier: Supplier,
+  //   kriteriaId: number
+  // ): number | string {
+  //   const nilaiObj = supplier.nilaiKriteria.find(
+  //     (nk) => nk.kriteriaId === kriteriaId
+  //   );
+  //   return nilaiObj ? nilaiObj.nilai : "-";
+  // }
 
   const openModal = (data?: Supplier) => {
     if (data) {
@@ -97,7 +110,7 @@ export default function TabelSupplier() {
         nama: "",
         alamat: "",
         contact: "",
-        nilaiKriteria: {},
+        nilaiKriteria: [],
         keterangan: "",
       });
       setIsEdit(false);
@@ -112,7 +125,7 @@ export default function TabelSupplier() {
       nama: "",
       alamat: "",
       contact: "",
-      nilaiKriteria: {},
+      nilaiKriteria: [],
       keterangan: "",
     });
   };
@@ -157,12 +170,14 @@ export default function TabelSupplier() {
     <div className="mt-4">
       <div className="flex justify-between items-center mb-4">
         <h2 className="font-bold text-4xl dark:text-gray-300">Data Supplier</h2>
-        <button
-          onClick={() => openModal()}
-          className="rounded px-4 py-2 text-sm text-white bg-brand-600 hover:bg-brand-700"
-        >
-          + Tambah Supplier
-        </button>
+        {user.role === "staff" && (
+          <button
+            onClick={() => openModal()}
+            className="rounded px-4 py-2 text-sm text-white bg-brand-600 hover:bg-brand-700"
+          >
+            + Tambah Supplier
+          </button>
+        )}
       </div>
       <div className="overflow-hidden rounded-xl mt-8 border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
         <div className="max-w-full overflow-x-auto">
@@ -230,34 +245,51 @@ export default function TabelSupplier() {
                     </TableCell>
                     <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                       <div className="space-y-1">
-                        {dummyKriteria.map((kriteria) => (
+                        {dummyKriteria.map((kriteria) => {
+                          const nilai =
+                            order.nilaiKriteria.find(
+                              (n) => n.kriteriaId === kriteria.id
+                            )?.nilai ?? "-";
+                          return (
+                            <div key={kriteria.id}>
+                              <span className="font-medium">
+                                {kriteria.nama}:
+                              </span>{" "}
+                              {nilai}
+                            </div>
+                          );
+                        })}
+
+                        {/* {kriteriaList.map((kriteria) => (
                           <div key={kriteria.id}>
                             <span className="font-medium">
                               {kriteria.nama}:
                             </span>{" "}
-                            {order.nilaiKriteria?.[kriteria.nama] ?? "-"}
+                            {getNilaiSupplierByKriteria(order, kriteria.id)}
                           </div>
-                        ))}
+                        ))} */}
                       </div>
                     </TableCell>
                     <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-md dark:text-gray-400">
                       <div className="flex -space-x-2">{order.keterangan}</div>
                     </TableCell>
                     <TableCell className="px-4 py-3 text-gray-500 text-theme-md dark:text-gray-400">
-                      <div className="flex gap-4">
-                        <button
-                          onClick={() => openModal(order)}
-                          className="text-blue-600 hover:underline text-sm"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(order.id)}
-                          className="text-red-600 hover:underline text-sm"
-                        >
-                          Hapus
-                        </button>
-                      </div>
+                      {user.role === "staff" && (
+                        <div className="flex gap-4">
+                          <button
+                            onClick={() => openModal(order)}
+                            className="text-blue-600 hover:underline text-sm"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDelete(order.id)}
+                            className="text-red-600 hover:underline text-sm"
+                          >
+                            Hapus
+                          </button>
+                        </div>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -323,25 +355,77 @@ export default function TabelSupplier() {
           </div>
           <ComponentCard title="Input Kriteria">
             <div className="space-y-2 max-h-[200px] overflow-y-auto custom-scrollbar pr-2">
-              {dummyKriteria.map((k) => (
-                <div key={k.id}>
-                  <label>{k.nama}</label>
-                  <input
-                    type="number"
-                    value={formData.nilaiKriteria[k.nama] || ""}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        nilaiKriteria: {
-                          ...formData.nilaiKriteria,
-                          [k.nama]: Number(e.target.value),
-                        },
-                      })
-                    }
-                    className="dark:bg-dark-900 mb-2 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-                  />
-                </div>
-              ))}
+              {dummyKriteria.map((k) => {
+                const existing = formData.nilaiKriteria.find(
+                  (item) => item.kriteriaId === k.id
+                );
+                return (
+                  <div key={k.id}>
+                    <label className="block font-medium mb-1">{k.nama}</label>
+                    <input
+                      type="number"
+                      value={existing?.nilai ?? ""}
+                      onChange={(e) => {
+                        const nilaiBaru = Number(e.target.value);
+                        setFormData((prev) => {
+                          const nilaiKriteriaBaru = [...prev.nilaiKriteria];
+                          const index = nilaiKriteriaBaru.findIndex(
+                            (item) => item.kriteriaId === k.id
+                          );
+
+                          if (index > -1) {
+                            nilaiKriteriaBaru[index].nilai = nilaiBaru;
+                          } else {
+                            nilaiKriteriaBaru.push({
+                              kriteriaId: k.id,
+                              nilai: nilaiBaru,
+                            });
+                          }
+
+                          return { ...prev, nilaiKriteria: nilaiKriteriaBaru };
+                        });
+                      }}
+                      className="mb-2 h-11 w-full rounded-lg border border-gray-300 px-4 text-sm"
+                    />
+                  </div>
+                );
+              })}
+
+              {/* {kriteriaList.map((k) => {
+                const existing = formData.nilaiKriteria.find(
+                  (item) => item.kriteriaId === k.id
+                );
+                return (
+                  <div key={k.id} className="mb-3">
+                    <label className="block font-medium mb-1">{k.nama}</label>
+                    <input
+                      type="number"
+                      value={existing?.nilai ?? ""}
+                      onChange={(e) => {
+                        const nilaiBaru = Number(e.target.value);
+                        setFormData((prev) => {
+                          const nilaiKriteriaBaru = [...prev.nilaiKriteria];
+                          const index = nilaiKriteriaBaru.findIndex(
+                            (item) => item.kriteriaId === k.id
+                          );
+
+                          if (index > -1) {
+                            nilaiKriteriaBaru[index].nilai = nilaiBaru;
+                          } else {
+                            nilaiKriteriaBaru.push({
+                              kriteriaId: k.id,
+                              nilai: nilaiBaru,
+                            });
+                          }
+
+                          return { ...prev, nilaiKriteria: nilaiKriteriaBaru };
+                        });
+                      }}
+                      className="mb-2 h-11 w-full rounded-lg border border-gray-300 px-4 text-sm"
+                    />
+                  </div>
+                );
+              })} */}
             </div>
           </ComponentCard>
         </div>

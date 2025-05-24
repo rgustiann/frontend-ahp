@@ -5,23 +5,7 @@ import type { StaticImageData } from "next/image";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "../context/SidebarContext";
-import {
-  ChevronDownIcon,
-  GridIcon,
-  HorizontaLDots,
-  ListIcon,
-  PageIcon,
-  TableIcon,
-  CalenderIcon,
-  DocsIcon,
-  DocsDark,
-  CalendarDark,
-  ListDark,
-  PagesDark,
-  GridDark,
-  MenuDark,
-  TableDark,
-} from "../icons/index";
+import { ChevronDownIcon, HorizontaLDots, MenuDark } from "../icons/index";
 
 type NavItem = {
   name: string;
@@ -31,46 +15,11 @@ type NavItem = {
   subItems?: { name: string; path: string; pro?: boolean; new?: boolean }[];
 };
 
-const navItems: NavItem[] = [
-  {
-    name: "Dashboard",
-    icon: GridIcon,
-    iconDark: GridDark,
-    path: "/staff",
-  },
-  {
-    name: "Daftar Supplier",
-    icon: ListIcon,
-    iconDark: ListDark,
-    path: "/staff/supplier",
-  },
-  {
-    name: "Kriteria",
-    icon: PageIcon,
-    iconDark: PagesDark,
-    path: "/staff/kriteria",
-  },
-  {
-    name: "Perhitungan",
-    icon: TableIcon,
-    iconDark: TableDark,
-    path: "/",
-  },
-  {
-    name: "Pengalokasian",
-    icon: CalenderIcon,
-    iconDark: CalendarDark,
-    path: "/",
-  },
-  {
-    name: "Pelaporan",
-    icon: DocsIcon,
-    iconDark: DocsDark,
-    path: "/",
-  },
-];
+type AppSidebarProps = {
+  navItems: NavItem[];
+};
 
-const AppSidebar: React.FC = () => {
+const AppSidebar: React.FC<AppSidebarProps> = ({ navItems }) => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const pathname = usePathname();
 

@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import React from "react";
 import TabelKriteria from "@/components/kriteria/TabelKriteria";
 export const metadata: Metadata = {
-  title:
-    "Next.js E-commerce Dashboard | TailAdmin - Next.js Dashboard Template",
-  description: "This is Next.js Home for TailAdmin Dashboard Template",
+  title: "AHP Procurement System | Ini Kasi nama perusahaan juga oke",
+  description: "Sistem rekomendasi pengadaan barang dengan AHP",
 };
 
 export default function Supplier() {

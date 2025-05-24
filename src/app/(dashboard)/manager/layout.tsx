@@ -4,7 +4,7 @@ import { useSidebar } from "@/context/SidebarContext";
 import AppHeader from "@/layout/AppHeader";
 import AppSidebar from "@/layout/AppSidebar";
 import Backdrop from "@/layout/Backdrop";
-import { staffNavItems } from "@/constant/staffNav";
+import { managerNavItems } from "@/constant/managerNav";
 import RequireAuth from "@/context/RequireAuth";
 
 export default function AdminLayout({
@@ -21,9 +21,9 @@ export default function AdminLayout({
     : "lg:ml-[90px]";
 
   return (
-    <RequireAuth allowedRoles={["staff"]}>
+    <RequireAuth  allowedRoles={["manager"]}>
       <div className="min-h-screen xl:flex">
-        <AppSidebar navItems={staffNavItems} />
+        <AppSidebar navItems={managerNavItems} />
         <Backdrop />
         <div
           className={`flex-1 transition-all  duration-300 ease-in-out ${mainContentMargin}`}

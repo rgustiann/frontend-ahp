@@ -1,14 +1,42 @@
 "use client";
-import Checkbox from "@/components/form/input/Checkbox";
+import React, { useState } from "react";
 import Input from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
+import SelectInputRole from "../form/form-elements/SelectInputs";
 import * as Icons from "@/icons";
 import Link from "next/link";
-import React, { useState } from "react";
+import { register as apiRegister } from "@/lib/api/authService";
+import { useRouter } from "next/navigation";
 
 export default function SignUpForm() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
-  const [isChecked, setIsChecked] = useState(false);
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [role, setRole] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+
+    try {
+      await apiRegister({ username, password, email, role });
+      router.push("/login");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message || "Registrasi gagal.");
+      } else {
+        setError("Terjadi kesalahan saat registrasi.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   type IconType =
     | React.FC<React.SVGProps<SVGSVGElement>>
     | { default: React.FC<React.SVGProps<SVGSVGElement>> }
@@ -30,7 +58,7 @@ export default function SignUpForm() {
     return null;
   };
   return (
-    <div className="flex flex-col flex-1 lg:w-1/2 w-full overflow-y-auto no-scrollbar">
+    <div className="flex flex-col flex-1  w-full overflow-y-auto no-scrollbar">
       <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
         <div>
           <div className="mb-5 sm:mb-8">
@@ -42,30 +70,35 @@ export default function SignUpForm() {
             </p>
           </div>
           <div>
-            <form>
+            <form onSubmit={handleSubmit}>
               <div className="space-y-5">
-                  {/* <!-- First Name --> */}
-                  <div>
-                    <Label>
-                      First Name<span className="text-error-500">*</span>
-                    </Label>
-                    <Input
-                      type="text"
-                      id="fname"
-                      name="fname"
-                      placeholder="Masukkan Nama Panjang"
-                    />
-                  </div>
                 {/* <!-- Email --> */}
                 <div>
                   <Label>
                     Username<span className="text-error-500">*</span>
                   </Label>
                   <Input
+                    type="text"
+                    id="username"
+                    name="username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="Masukkan Username"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label>
+                    Email<span className="text-error-500">*</span>
+                  </Label>
+                  <Input
                     type="email"
                     id="email"
                     name="email"
-                    placeholder="Masukkan Username"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Masukkan Email"
+                    required
                   />
                 </div>
                 {/* <!-- Password --> */}
@@ -77,6 +110,9 @@ export default function SignUpForm() {
                     <Input
                       placeholder="Masukkan Password"
                       type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
                     />
                     <span
                       onClick={() => setShowPassword(!showPassword)}
@@ -94,9 +130,18 @@ export default function SignUpForm() {
                     </span>
                   </div>
                 </div>
+                {/* <!-- Role --> */}
+                <div>
+                  <SelectInputRole
+                    value={role}
+                    onChange={(selectedRole) => setRole(selectedRole)}
+                  />
+                </div>
+
+                {error && <p className="text-red-500 text-sm">{error}</p>}
                 <div>
                   <button className="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600">
-                    Sign Up
+                    {loading ? "Mendaftar..." : "Sign Up"}
                   </button>
                 </div>
               </div>

@@ -1,10 +1,9 @@
 "use client"
 import GridShape from "@/components/common/GridShape";
+import Button from "@/components/ui/button/Button";
 import Image from "next/image";
 import React from "react";
 import useGoBack from "@/hooks/useGoBack";
-import Button from "@/components/ui/button/Button";
-
 
 export default function Error404() {
   const goBack = useGoBack();
@@ -17,14 +16,14 @@ export default function Error404() {
         </h1>
 
         <Image
-          src="/images/error/404.svg"
+          src="/images/error/unauthorized.svg"
           alt="404"
           className="dark:hidden"
           width={472}
           height={152}
         />
         <Image
-          src="/images/error/404-dark.svg"
+          src="/images/error/unauthorized-dark.svg"
           alt="404"
           className="hidden dark:block"
           width={472}
@@ -37,7 +36,7 @@ export default function Error404() {
 
         <Button
           onClick={goBack}
-          className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-5 py-3.5 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
+          className="inline-flex items-center justify-center rounded-lg border border-gray-300px-5 py-3.5 text-sm font-medium text-gray-700 shadow-theme-xs"
         >
           Back to Home Page
         </Button>

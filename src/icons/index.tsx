@@ -58,6 +58,8 @@ import DocsDark from "./docs-dark.svg";
 import GridDark from "./grid-dark.svg";
 import ListDark from "./list-dark.svg";
 import TableDark from "./table-dark.svg";
+import TrophyIcon from "./trophy.svg";
+import TrophyDark from "./trophy-dark.svg";
 export {
   DownloadIcon,
   BellIcon,
@@ -118,5 +120,7 @@ export {
   PagesDark,
   GridDark,
   MenuDark,
-  TableDark
+  TableDark,
+  TrophyDark,
+  TrophyIcon
 };

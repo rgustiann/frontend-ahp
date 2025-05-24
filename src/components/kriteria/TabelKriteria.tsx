@@ -8,7 +8,7 @@ import {
   TableRow,
 } from "../ui/table";
 import { Modal } from "../ui/modal";
-
+// import { useAuth } from "@/context/AuthContext";
 interface Kriteria {
   id: number;
   kode: string;
@@ -17,6 +17,7 @@ interface Kriteria {
 }
 
 export default function TabelKriteria() {
+  // const { user } = useAuth();
   const [kriteriaList, setKriteriaList] = useState<Kriteria[]>([
     {
       id: 1,
@@ -54,7 +55,7 @@ export default function TabelKriteria() {
     } else {
       setFormData({
         id: Date.now(),
-        kode: `C${kriteriaList.length + 1}`,
+        kode: generateKode(),
         nama: "",
         pertimbangan: "",
       });
@@ -67,25 +68,55 @@ export default function TabelKriteria() {
     setIsOpen(false);
     setFormData({ id: 0, kode: "", nama: "", pertimbangan: "" });
   };
+  // Simulasi pemanggilan API
 
-  const handleSave = () => {
+  const createKriteria = async (data: Kriteria) => {
+    console.log("🔄 Mengirim data baru ke API:", data);
+    alert("Data berhasil ditambahkan (simulasi API)");
+    // TODO: ganti dengan API call asli nanti
+  };
+
+  const updateKriteria = async (data: Kriteria) => {
+    console.log("✏️ Mengirim data edit ke API:", data);
+    alert("Data berhasil diperbarui (simulasi API)");
+    // TODO: ganti dengan API call asli nanti
+  };
+
+  const deleteKriteria = async (id: number) => {
+    console.log("🗑️ Menghapus data ID:", id);
+    alert("Data berhasil dihapus (simulasi API)");
+    // TODO: ganti dengan API call asli nanti
+  };
+
+  const generateKode = () => {
+    if (kriteriaList.length === 0) return "C1";
+    const numbers = kriteriaList.map((k) => Number(k.kode.replace(/\D/g, "")));
+    const maxNum = Math.max(...numbers);
+    return `C${maxNum + 1}`;
+  };
+
+  const handleSave = async () => {
     if (!formData.nama.trim() || !formData.kode.trim()) {
       alert("Nama dan kode kriteria tidak boleh kosong.");
       return;
     }
 
     if (isEdit) {
+      await updateKriteria(formData);
       setKriteriaList((prev) =>
         prev.map((item) => (item.id === formData.id ? formData : item))
       );
     } else {
+      await createKriteria(formData);
       setKriteriaList((prev) => [...prev, formData]);
     }
+
     closeModal();
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: number) => {
     if (confirm("Yakin ingin menghapus kriteria ini?")) {
+      await deleteKriteria(id); // Simulasi API
       setKriteriaList((prev) => prev.filter((item) => item.id !== id));
     }
   };
@@ -94,12 +125,14 @@ export default function TabelKriteria() {
     <div className="mt-4">
       <div className="flex justify-between items-center mb-4">
         <h2 className="font-bold text-4xl dark:text-gray-300">Data Kriteria</h2>
+        {/* {user.role === "staff" && ( */}
         <button
           onClick={() => openModal()}
           className="rounded px-4 py-2 text-sm text-white bg-brand-600 hover:bg-brand-700"
         >
           + Tambah Kriteria
         </button>
+        {/* )} */}
       </div>
 
       <div className="overflow-hidden rounded-xl mt-8 border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
@@ -167,6 +200,7 @@ export default function TabelKriteria() {
                     {k.pertimbangan}
                   </TableCell>
                   <TableCell>
+                    {/* {user.role === "staff" && ( */}
                     <div className="flex gap-3">
                       <button
                         onClick={() => openModal(k)}
@@ -181,6 +215,7 @@ export default function TabelKriteria() {
                         Hapus
                       </button>
                     </div>
+                    {/* )} */}
                   </TableCell>
                 </TableRow>
               ))}

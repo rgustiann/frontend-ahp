@@ -9,11 +9,10 @@ interface SelectInputsProps {
   value: string;
   onChange: (value: string) => void;
 }
-export default function SelectInputs({ value, onChange }: SelectInputsProps) {
+export default function SelectInputRole({ value, onChange }: SelectInputsProps) {
   const options = [
-    { value: "pending", label: "Pending" },
-    { value: "approved", label: "Approved" },
-    { value: "rejected", label: "Rejected" },
+    { value: "staff", label: "Staff" },
+    { value: "manager", label: "Manager" }
   ];
 
   const handleSelectChange = (selectedValue: string) => {
@@ -23,11 +22,11 @@ export default function SelectInputs({ value, onChange }: SelectInputsProps) {
   return (
       <div className="space-y-6">
         <div>
-          <Label>Pilih Status</Label>
+          <Label>Pilih Role</Label>
           <div className="relative">
             <Select
               options={options}
-              placeholder="Status"
+              placeholder="Role"
               value={value}
               onChange={handleSelectChange}
               className="dark:bg-dark-900"
