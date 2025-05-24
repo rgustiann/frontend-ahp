@@ -215,12 +215,14 @@ export default function TabelSupplier() {
                   >
                     Keterangan
                   </TableCell>
-                  <TableCell
-                    isHeader
-                    className="px-5 py-3 font-medium text-gray-500 text-start text-theme-sm dark:text-gray-400"
-                  >
-                    Action
-                  </TableCell>
+                  {user.role === "staff" && (
+                    <TableCell
+                      isHeader
+                      className="px-5 py-3 font-medium text-gray-500 text-start text-theme-sm dark:text-gray-400"
+                    >
+                      Action
+                    </TableCell>
+                  )}
                 </TableRow>
               </TableHeader>
 

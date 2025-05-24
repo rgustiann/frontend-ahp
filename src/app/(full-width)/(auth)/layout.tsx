@@ -27,13 +27,13 @@ export default function AuthLayout({
                 <Image
                   width={231}
                   height={48}
-                  src="/images/logo/xxx.svg"
+                  src="/images/logo/logo.png"
                   alt="Logo"
                   priority
                 />
               </Link>
-              <p className="text-gray-400 dark:text-white/60 text-lg font-light">
-                INI TAGLINE PERUSAHAANNYA
+              <p className="text-gray-100 dark:text-white/60 text-lg font-normal">
+                we wok de tok not onle tok de tok
               </p>
             </div>
           </aside>

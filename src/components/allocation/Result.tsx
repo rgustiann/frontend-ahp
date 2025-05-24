@@ -32,19 +32,6 @@ export default function ResultTable() {
     fetchData();
   }, []);
 
-  const getRowClass = (ranking: number) => {
-    switch (ranking) {
-      case 1:
-        return "bg-green-100 dark:bg-green-600/90";
-      case 2:
-        return "bg-gray-200 dark:bg-gray-700/80";
-      case 3:
-        return "bg-amber-100 dark:bg-yellow-800/40";
-      default:
-        return "";
-    }
-  };
-
   return (
     <div className="mt-4">
       <div className="overflow-hidden rounded-xl mt-8 border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
@@ -80,7 +67,7 @@ export default function ResultTable() {
             </TableHeader>
             <TableBody>
               {hasilAHP.map((item, index) => (
-                <TableRow key={item.id} className={getRowClass(item.ranking)}>
+                <TableRow key={item.id}>
                   <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-md dark:text-gray-300">
                     {index + 1}
                   </TableCell>
