@@ -15,3 +15,15 @@ export interface InputSupplyPayload {
   staff_id: number;
   tanggal:string;
 }
+
+export interface SupplyDetail {
+  id: number;
+  supplier_id: number;
+  nama_supply: string;
+  maksimal_produksi: number;
+}
+
+export interface SupplyInput {
+  nama_supply: string;
+  maksimal_produksi: number;
+}

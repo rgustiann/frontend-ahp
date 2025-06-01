@@ -8,7 +8,12 @@ export interface Supplier {
   nama: string;
   alamat: string;
   contact: string;
-  nama_supply: string;
-  maksimal_produksi:  number | undefined;
   keterangan: string;
+}
+
+export interface SupplierDetail {
+  id: number;
+  supplier_id: number;
+  nama_supply: string;
+  maksimal_produksi: number;
 }

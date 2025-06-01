@@ -1,9 +1,9 @@
 import axiosInstance from "./axios"; 
 import { Supplier } from "@/types/supplier";
 import { NilaiKriteriaServer, NilaiKriteriaInput } from '@/types/kriteria';
+import { SupplyDetail, SupplyInput } from "@/types/supply";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL + '/supplier';
-
 console.log(API_URL); 
 
 // -------------------- Supplier --------------------
@@ -65,5 +65,41 @@ export const updateNilaiKriteria = async (
 
 export const deleteNilaiKriteria = async (id: number): Promise<{ message: string }> => {
   const response = await axiosInstance.delete(`${API_URL}/nilai-kriteria/${id}`);
+  return response.data;
+};
+
+// -------------------- Supplier Detail -------------------
+export const getSuppliesBySupplier = async (
+  supplierId: number
+): Promise<SupplyDetail[]> => {
+  const response = await axiosInstance.get(`${API_URL}/${supplierId}/supplies`);
+  return response.data;
+};
+
+export const addSupplyToSupplier = async (
+  supplierId: number,
+  supply: SupplyInput
+): Promise<{ message: string; new_id: number }> => {
+  const response = await axiosInstance.post(`${API_URL}/${supplierId}/add-supply`, supply);
+  return response.data;
+};
+
+export const updateSupply = async (
+  id: number,
+  supply: SupplyInput
+): Promise<{ message: string }> => {
+  const response = await axiosInstance.put(`${API_URL}/supply/${id}`, supply);
+  return response.data;
+};
+
+export const deleteSupply = async (
+  id: number
+): Promise<{ message: string }> => {
+  const response = await axiosInstance.delete(`${API_URL}/supply/${id}`);
+  return response.data;
+};
+
+export const getUniqueNamaSupply = async (): Promise<string[]> => {
+  const response = await axiosInstance.get(`${API_URL}/nama-supply`);
   return response.data;
 };
