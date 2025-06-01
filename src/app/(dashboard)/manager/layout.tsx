@@ -21,7 +21,7 @@ export default function AdminLayout({
     : "lg:ml-[90px]";
 
   return (
-    <RequireAuth  allowedRoles={["manager"]}>
+    <RequireAuth  allowedRoles={["junior_manager"]}>
       <div className="min-h-screen xl:flex">
         <AppSidebar navItems={managerNavItems} />
         <Backdrop />

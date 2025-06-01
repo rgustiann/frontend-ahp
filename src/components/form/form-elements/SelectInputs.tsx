@@ -12,7 +12,7 @@ interface SelectInputsProps {
 export default function SelectInputRole({ value, onChange }: SelectInputsProps) {
   const options = [
     { value: "staff", label: "Staff" },
-    { value: "manager", label: "Manager" }
+    { value: "junior_manager", label: "Manager" }
   ];
 
   const handleSelectChange = (selectedValue: string) => {

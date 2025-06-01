@@ -4,7 +4,7 @@ import './globals.css';
 import { SidebarProvider } from '@/context/SidebarContext';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { AuthProvider } from '@/context/AuthContext';
-
+import { Toaster } from 'sonner';
 const outfit = Outfit({
   subsets: ["latin"],
 });
@@ -21,6 +21,7 @@ export default function RootLayout({
           <SidebarProvider>
             <AuthProvider>
               {children}
+              <Toaster richColors position="top-right" />
             </AuthProvider>
             </SidebarProvider>
         </ThemeProvider>

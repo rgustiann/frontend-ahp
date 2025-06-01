@@ -18,7 +18,7 @@ const ComponentCard: React.FC<ComponentCardProps> = ({
       className={`rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] ${className}`}
     >
       {/* Card Header */}
-      <div className="px-4 py-2">
+      <div className="px-4 mt-2 py-2">
         <h3 className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
           {title}
         </h3>

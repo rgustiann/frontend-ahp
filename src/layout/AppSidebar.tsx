@@ -226,7 +226,7 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ navItems }) => {
           !isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
         }`}
       >
-        <Link href="/">
+        <Link href="">
           {isExpanded || isHovered || isMobileOpen ? (
             <span className="text-3xl font-bold text-gray-800 dark:text-white">
               JOKOWI

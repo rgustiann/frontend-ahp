@@ -8,6 +8,7 @@ export interface Supplier {
   nama: string;
   alamat: string;
   contact: string;
-  nilaiKriteria: NilaiKriteriaSupplier[];
+  nama_supply: string;
+  maksimal_produksi:  number | undefined;
   keterangan: string;
 }
