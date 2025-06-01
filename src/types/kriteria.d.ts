@@ -2,11 +2,13 @@ export interface Kriteria {
   id: number;
   kode: string;
   nama: string;
+  pertimbangan: string;
 }
 
 export interface KriteriaInput {
   kode: string;
   nama: string;
+  pertimbangan: string;
 }
 export interface NilaiKriteriaInput {
   namaKriteria: string;

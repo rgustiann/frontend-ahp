@@ -19,6 +19,7 @@ import {
   deleteKriteria as deleteKriteriaAPI,
 } from "@/lib/api/kriteriaService";
 import { toast } from "sonner";
+import TextArea from "../form/input/TextArea";
 
 export default function TabelKriteria() {
   const { user } = useAuth();
@@ -41,12 +42,15 @@ export default function TabelKriteria() {
   const [formData, setFormData] = useState<Partial<Kriteria>>({
     kode: "",
     nama: "",
+    pertimbangan: "",
   });
   const [isEdit, setIsEdit] = useState(false);
 
   // State untuk dialog konfirmasi hapus
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [kriteriaToDelete, setKriteriaToDelete] = useState<Kriteria | null>(null);
+  const [kriteriaToDelete, setKriteriaToDelete] = useState<Kriteria | null>(
+    null
+  );
 
   const openModal = (data?: Kriteria) => {
     if (data) {
@@ -56,6 +60,7 @@ export default function TabelKriteria() {
       setFormData({
         kode: generateKode(),
         nama: "",
+        pertimbangan: "",
       });
       setIsEdit(false);
     }
@@ -64,7 +69,7 @@ export default function TabelKriteria() {
 
   const closeModal = () => {
     setIsOpen(false);
-    setFormData({ kode: "", nama: "" });
+    setFormData({ kode: "", nama: "", pertimbangan: "" });
   };
 
   const openDeleteDialog = (kriteria: Kriteria) => {
@@ -82,6 +87,7 @@ export default function TabelKriteria() {
       const { kriteria_id } = await createKriteriaAPI({
         kode: data.kode,
         nama: data.nama,
+        pertimbangan: data.pertimbangan,
       });
       const newData = { ...data, id: kriteria_id };
       setKriteriaList((prev) => [...prev, newData]);
@@ -101,6 +107,7 @@ export default function TabelKriteria() {
       await updateKriteriaAPI(data.id!, {
         kode: data.kode,
         nama: data.nama,
+        pertimbangan: data.pertimbangan,
       });
       setKriteriaList((prev) =>
         prev.map((item) => (item.id === data.id ? data : item))
@@ -140,7 +147,11 @@ export default function TabelKriteria() {
   };
 
   const handleSave = async () => {
-    if (!formData.nama?.trim() || !formData.kode?.trim()) {
+    if (
+      !formData.nama?.trim() ||
+      !formData.kode?.trim() ||
+      !formData.pertimbangan?.trim()
+    ) {
       toast.error("Data tidak lengkap", {
         description: "Nama dan kode kriteria tidak boleh kosong",
       });
@@ -148,9 +159,9 @@ export default function TabelKriteria() {
     }
 
     if (isEdit && formData.id != null) {
-      await updateKriteria(formData as Kriteria); 
+      await updateKriteria(formData as Kriteria);
     } else {
-      await createKriteria(formData as Kriteria); 
+      await createKriteria(formData as Kriteria);
     }
 
     closeModal();
@@ -203,6 +214,12 @@ export default function TabelKriteria() {
                   isHeader
                   className="px-5 py-3 font-medium text-gray-500 text-start text-theme-sm dark:text-gray-400"
                 >
+                  Pertimbangan
+                </TableCell>
+                <TableCell
+                  isHeader
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-sm dark:text-gray-400"
+                >
                   Aksi
                 </TableCell>
               </TableRow>
@@ -227,6 +244,15 @@ export default function TabelKriteria() {
                       <div>
                         <span className="block font-medium text-gray-800 text-theme-md dark:text-white/90">
                           {k.nama}
+                        </span>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell className="px-5 py-4 sm:px-6 text-start">
+                    <div className="flex max-w-lg items-center gap-3">
+                      <div>
+                        <span className="block font-base text-gray-800 text-theme-md dark:text-white/90">
+                          {k.pertimbangan}
                         </span>
                       </div>
                     </div>
@@ -290,6 +316,20 @@ export default function TabelKriteria() {
               placeholder="Contoh: Harga"
             />
           </div>
+          <div>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-400">
+              Pertimbangan Kriteria
+            </label>
+            <TextArea
+              value={formData.pertimbangan}
+              onChange={(value) =>
+                setFormData({ ...formData, pertimbangan: value })
+              }
+              rows={3}
+              className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-transparent px-4 py-2.5 text-sm text-gray-800 dark:text-white/90"
+              placeholder="Penjelasan Pertimbangan..."
+            />
+          </div>
         </div>
 
         <div className="mt-6 flex justify-end gap-3">
@@ -310,7 +350,11 @@ export default function TabelKriteria() {
 
       {/* Dialog Konfirmasi Hapus */}
       <Transition appear show={isDeleteDialogOpen} as={Fragment}>
-        <Dialog as="div" className="relative z-99999" onClose={closeDeleteDialog}>
+        <Dialog
+          as="div"
+          className="relative z-99999"
+          onClose={closeDeleteDialog}
+        >
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"

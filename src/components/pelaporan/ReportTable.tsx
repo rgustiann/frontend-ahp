@@ -84,7 +84,7 @@ const ReportTable: React.FC<Props> = ({ reports }) => {
                     {report.status}
                   </span>
                 </TableCell>
-                <TableCell className="px-4 py-2 border space-x-2">
+                <TableCell className="px-4 py-2 space-x-2">
                   <a
                     href={report.file_path}
                     target="_blank"

@@ -59,6 +59,7 @@ export default function ReportPage() {
       catatanSupplyId: id,
       currentStep: 'criteria',
     }));
+    console.log("supply id", id)
   }, []);
 
   const handleReportCreated = useCallback((id: number) => {
@@ -74,6 +75,8 @@ export default function ReportPage() {
     
     try {
       const rankingData = await getRankingSuppliersByReport(id);
+      console.log("Ranking pler", rankingData);
+
       setState(prev => ({
         ...prev,
         rankings: rankingData,
@@ -164,7 +167,7 @@ export default function ReportPage() {
                   onClick={handleBackToWelcome}
                   className="px-4 py-2 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
                 >
-                  Kembali ke Beranda
+                  Reset Halaman x
                 </button>
               </div>
             </div>

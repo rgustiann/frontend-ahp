@@ -1,9 +1,10 @@
 export interface SupplierRanking {
   id: number;
+  reportId: number;
+  nama_supply: string;
   supplierName: string;
-  supplyName: string;
   ranking: number;
-  alokasi: number;
+  alokasi_kebutuhan: number;
 }
 
 export interface UsedCriteria {

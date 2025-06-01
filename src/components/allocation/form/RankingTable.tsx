@@ -97,13 +97,13 @@ const RankingTable: React.FC<RankingTableProps> = ({
                       {item.supplierName}
                     </TableCell>
                     <TableCell className="px-5 py-4 sm:px-6 text-start text-theme-md dark:text-white/90">
-                      {item.supplyName}
+                      {item.nama_supply}
                     </TableCell>
                     <TableCell className="px-5 py-4 sm:px-6 text-start text-theme-md dark:text-white/90">
                       {item.ranking}
                     </TableCell>
                     <TableCell className="px-5 py-4 sm:px-6 text-start text-theme-md dark:text-white/90">
-                      {item.alokasi}
+                      {item.alokasi_kebutuhan}
                     </TableCell>
                   </TableRow>
                 ))}
