@@ -43,3 +43,10 @@ interface CreateReportWithDataRequest {
   catatan_validasi: string;
   rankingData: SupplierRanking[];
 }
+export interface CreateReportWithRankingPayload {
+  catatan_supply_id: number;
+  file_path: string;
+  catatan_validasi: string;
+  usedCriteria: KriteriaThatWillbeUsed[];
+  rankingData: SupplierRanking[]; 
+}

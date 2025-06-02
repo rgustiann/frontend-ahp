@@ -5,7 +5,7 @@ import InputSupplyStep from "@/components/allocation/form/InputSupplyForm";
 import { Step2FormCard } from "@/components/allocation/form/InputStep2Form";
 import SuccessModal from "@/components/allocation/form/SuccessModal";
 import RankingTable from "@/components/allocation/form/RankingTable";
-import PDFButton from "@/components/allocation/form/PDFButton";
+import ReportButton from "@/components/allocation/form/ReportButton";
 import StepIndicator from "@/components/allocation/form/StepIndicator";
 import ErrorBoundary from "@/components/ui/boundary/ErrorBoundary";
 import LoadingSpinner from "@/components/ui/spinner/LoadingSpinner";
@@ -158,7 +158,7 @@ export default function ReportPage() {
               </h2>
               <div className="flex gap-3">
                 {canGeneratePDF && (
-                  <PDFButton
+                  <ReportButton
                     reportId={state.reportId!}
                     onGenerate={handleGeneratePDF}
                   />
