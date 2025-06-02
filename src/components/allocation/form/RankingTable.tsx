@@ -7,10 +7,10 @@ import {
   TableHeader,
   TableRow,
 } from "../../ui/table";
-import { SupplierRanking } from "@/types/ranking";
+import { SupplierRankingResponse } from "@/types/ranking";
 
 interface RankingTableProps {
-  rankings: SupplierRanking[];
+  rankings: SupplierRankingResponse[];
   isLoading?: boolean;
 }
 

@@ -1,13 +1,22 @@
-import { ApprovalPayload, CreateReportPayload, CreateReportWithDataRequest, PreviewRankingRequest, ReportData } from "@/types/report";
+import { ApprovalPayload, CreateReportPayload, CreateReportResponse, CreateReportWithDataRequest, PreviewRankingRequest, ReportData } from "@/types/report";
 import axiosInstance from "./axios";
+import { GenerateRankingResponse, RankingInput } from "@/types/ranking";
 const API_URL = process.env.NEXT_PUBLIC_API_URL + "/reports"
+
+export const generateRankingFromSupplyData = async (
+  data: RankingInput
+): Promise<GenerateRankingResponse> => {
+  const response = await axiosInstance.post(`${API_URL}/generate-rankSupplier`, data);
+  return response.data;
+};
 
 export const createReport = async (
   data: CreateReportPayload
-): Promise<{ message: string; report_id: number }> => {
-  const response = await axiosInstance.post(`${API_URL}/create`, data);
+): Promise<CreateReportResponse> => {
+  const response = await axiosInstance.post(`${API_URL}/create-report`, data);
   return response.data;
 };
+
 
 export const getAllReports = async (): Promise<ReportData[]> => {
   const response = await axiosInstance.get(API_URL);

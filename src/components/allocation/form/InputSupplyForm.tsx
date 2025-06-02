@@ -10,10 +10,17 @@ import { toast } from "sonner";
 import { Dropdown } from "@/components/ui/dropdown/Dropdown";
 import { DropdownItem } from "@/components/ui/dropdown/DropdownItem";
 
+interface SupplyData {
+  nama_supply: string;
+  jumlah_kebutuhan: number;
+  nama_pemesan: string;
+  no_telp_pemesan: string;
+}
+
 interface InputSupplyStepProps {
   isOpen: boolean;
   onClose: () => void;
-  onNext: (idCatatan: number) => void;
+  onNext: (supplyData: SupplyData) => void;
 }
 
 const InputSupplyStep: React.FC<InputSupplyStepProps> = ({
@@ -30,7 +37,7 @@ const InputSupplyStep: React.FC<InputSupplyStepProps> = ({
   const [namaBarang, setNamaBarang] = useState("");
   const [jumlahKebutuhan, setJumlahKebutuhan] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  
+
   // New states for dropdown functionality
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [supplyOptions, setSupplyOptions] = useState<string[]>([]);
@@ -70,7 +77,7 @@ const InputSupplyStep: React.FC<InputSupplyStepProps> = ({
     if (searchTerm.trim() === "") {
       setFilteredOptions(supplyOptions);
     } else {
-      const filtered = supplyOptions.filter(option =>
+      const filtered = supplyOptions.filter((option) =>
         option.toLowerCase().includes(searchTerm.toLowerCase())
       );
       setFilteredOptions(filtered);
@@ -136,7 +143,7 @@ const InputSupplyStep: React.FC<InputSupplyStepProps> = ({
 
     setIsLoading(true);
     try {
-      const response = await inputSupply({
+      await inputSupply({
         nama_pemesan: namaPemesan.trim(),
         no_hp: noHp.trim(),
         nama_kebutuhan: namaBarang.trim(),
@@ -146,12 +153,24 @@ const InputSupplyStep: React.FC<InputSupplyStepProps> = ({
       });
 
       toast.success("Kebutuhan berhasil ditambahkan!");
+
+      // Prepare supply data untuk step selanjutnya
+      const supplyData: SupplyData = {
+        nama_supply: namaBarang.trim(),
+        jumlah_kebutuhan: jumlah,
+        nama_pemesan: namaPemesan.trim(),
+        no_telp_pemesan: noHp.trim(),
+      };
+
+      // Reset form
       setNamaPemesan(user?.username || "");
       setNoHp("");
       setNamaBarang("");
       setJumlahKebutuhan("");
       setSearchTerm("");
-      onNext(response.catatan_supply_id);
+
+      // Pass both catatan_supply_id and supply data
+      onNext(supplyData);
     } catch (error: unknown) {
       if (typeof error === "object" && error !== null && "response" in error) {
         const axiosError = error as {
@@ -237,7 +256,10 @@ const InputSupplyStep: React.FC<InputSupplyStepProps> = ({
         </h3>
 
         <div className="mt-4 w-full">
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4 mx-auto w-full max-w-md">
+          <form
+            onSubmit={handleSubmit}
+            className="flex flex-col gap-4 mx-auto w-full max-w-md"
+          >
             <input
               type="text"
               placeholder="Nama Pemesan"
@@ -246,7 +268,7 @@ const InputSupplyStep: React.FC<InputSupplyStepProps> = ({
               disabled={isLoading}
               className="h-11 w-full rounded-lg border border-gray-200 bg-transparent px-4 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 disabled:opacity-50 disabled:cursor-not-allowed"
             />
-            
+
             <input
               type="tel"
               placeholder="No. HP"
@@ -255,20 +277,24 @@ const InputSupplyStep: React.FC<InputSupplyStepProps> = ({
               disabled={isLoading}
               className="h-11 w-full rounded-lg border border-gray-200 bg-transparent px-4 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 disabled:opacity-50 disabled:cursor-not-allowed"
             />
-            
+
             {/* Dropdown Input for Nama Supply */}
             <div className="relative">
               <input
                 ref={inputRef}
                 type="text"
-                placeholder={isLoadingOptions ? "Memuat data supply..." : "Pilih atau ketik nama supply"}
+                placeholder={
+                  isLoadingOptions
+                    ? "Memuat data supply..."
+                    : "Pilih atau ketik nama supply"
+                }
                 value={searchTerm}
                 onChange={handleInputChange}
                 onFocus={handleInputFocus}
                 disabled={isLoading || isLoadingOptions}
                 className="dropdown-toggle h-11 w-full rounded-lg border border-gray-200 bg-transparent px-4 pr-10 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 disabled:opacity-50 disabled:cursor-not-allowed"
               />
-              
+
               {/* Dropdown Arrow */}
               <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                 <svg
@@ -306,12 +332,14 @@ const InputSupplyStep: React.FC<InputSupplyStepProps> = ({
                   ))
                 ) : (
                   <div className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                    {searchTerm.trim() === "" ? "Tidak ada data supply" : "Tidak ada hasil yang ditemukan"}
+                    {searchTerm.trim() === ""
+                      ? "Tidak ada data supply"
+                      : "Tidak ada hasil yang ditemukan"}
                   </div>
                 )}
               </Dropdown>
             </div>
-            
+
             <input
               type="number"
               placeholder="Jumlah Kebutuhan"
@@ -321,7 +349,7 @@ const InputSupplyStep: React.FC<InputSupplyStepProps> = ({
               disabled={isLoading}
               className="h-11 w-full rounded-lg border border-gray-200 bg-transparent px-4 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 disabled:opacity-50 disabled:cursor-not-allowed"
             />
-            
+
             <button
               type="submit"
               disabled={isLoading || isLoadingOptions}

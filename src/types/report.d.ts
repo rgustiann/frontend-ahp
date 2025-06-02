@@ -4,10 +4,29 @@ export interface UsedCriteria {
 }
 
 export interface CreateReportPayload {
+  nama_supply: string;
+  jumlah_kebutuhan: number;
+  nama_pemesan: string;
+  no_telp_pemesan: string;
+  rankings: Array<{
+    supplierName: string;
+    nama_supply: string;
+    ranking: number;
+    alokasi_kebutuhan: number;
+    score?: number; 
+  }>;
+  usedCriteria: Array<{
+    criteriaName: string;
+    criteriaValue: number;
+  }>;
+  catatan_validasi: string;
+}
+
+export interface CreateReportResponse {
+  message: string;
+  report_id: number;
   catatan_supply_id: number;
-  file_path: string;
-  catatan_validasi?: string;
-  usedCriteria: UsedCriteria[];
+  pdf_url: string;
 }
 
 export interface ApprovalPayload {

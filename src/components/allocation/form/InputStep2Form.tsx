@@ -3,29 +3,46 @@ import React, { useEffect, useState } from "react";
 import { useTheme } from "@/context/ThemeContext";
 import Image from "next/image";
 import { SearchIcon, SearchDark } from "@/icons";
-import { createReport } from "@/lib/api/reportService";
 import { getAllKriteria } from "@/lib/api/kriteriaService";
 import Checkbox from "@/components/form/input/Checkbox";
-import { Kriteria, KriteriaThatWillbeUsed } from "@/types/kriteria";
+import { Kriteria } from "@/types/kriteria";
 import { toast } from "sonner";
+import { SupplierRankingResponse, UsedCriteria } from "@/types/ranking";
+import { generateRankingFromSupplyData } from "@/lib/api/reportService";
+
 interface Step2FormCardProps {
   isOpen: boolean;
   onClose: () => void;
-  catatanSupplyId?: number;
-  onSuccess: (reportId: number) => void;
+  onSuccess: (data: {
+    rankings: SupplierRankingResponse[];
+    supplyData: {
+      nama_supply: string;
+      jumlah_kebutuhan: number;
+      nama_pemesan: string;
+      no_telp_pemesan: string;
+    };
+    usedCriteria: UsedCriteria[];
+    catatan_validasi: string;
+  }) => void;
+  supplyData?: {
+    nama_supply: string;
+    jumlah_kebutuhan: number;
+    nama_pemesan: string;
+    no_telp_pemesan: string;
+  };
 }
 
 export const Step2FormCard: React.FC<Step2FormCardProps> = ({
   isOpen,
   onClose,
-  catatanSupplyId,
   onSuccess,
+  supplyData,
 }) => {
   const { theme } = useTheme();
 
   const [allCriteria, setAllCriteria] = useState<Kriteria[]>([]);
   const [selectedCriteria, setSelectedCriteria] = useState<
-    KriteriaThatWillbeUsed[]
+    UsedCriteria[]
   >([]);
   const [catatanValidasi, setCatatanValidasi] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -83,24 +100,39 @@ export const Step2FormCard: React.FC<Step2FormCardProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!catatanSupplyId) {
-      toast.error("ID catatan supply tidak tersedia.");
+    // Validasi input
+    if (selectedCriteria.length === 0) {
+      toast.error("Pilih minimal satu kriteria.");
+      return;
+    }
+
+    if (!supplyData) {
+      toast.error("Data supply tidak tersedia.");
       return;
     }
 
     setIsLoading(true);
     try {
-      const response = await createReport({
-        catatan_supply_id: catatanSupplyId,
-        file_path: "",
-        catatan_validasi: catatanValidasi.trim(),
+      // CHANGED: Only generate ranking, don't create report yet
+      const rankingData = await generateRankingFromSupplyData({
+        nama_supply: supplyData.nama_supply,
+        jumlah_kebutuhan: supplyData.jumlah_kebutuhan,
         usedCriteria: selectedCriteria,
       });
 
-      toast.success("Laporan berhasil dibuat!");
-      onSuccess(response.report_id);
+      toast.success("Ranking berhasil di-generate!");
+
+      // CHANGED: Pass all necessary data for later report creation
+      onSuccess({
+        rankings: rankingData.rankings,
+        supplyData: supplyData,
+        usedCriteria: selectedCriteria,
+        catatan_validasi: catatanValidasi.trim(),
+      });
     } catch (error) {
-      toast.error("Gagal membuat laporan. Silakan coba lagi.");
+      toast.error(
+        error instanceof Error ? error.message : "Gagal generate ranking"
+      );
       console.error(error);
     } finally {
       setIsLoading(false);
@@ -111,15 +143,13 @@ export const Step2FormCard: React.FC<Step2FormCardProps> = ({
 
   return (
     <div className="fixed inset-0 flex items-center justify-center overflow-y-auto modal z-99999">
+      {/* Modal content remains the same as original */}
       <div
         className="fixed inset-0 h-full w-full bg-gray-400/50"
         onClick={onClose}
       />
-
-      <div
-        className="relative w-full max-w-xl rounded-3xl  bg-white dark:bg-gray-900 p-5 md:p-6 flex flex-col items-center mx-4"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="relative w-full max-w-xl rounded-3xl bg-white dark:bg-gray-900 p-5 md:p-6 flex flex-col items-center mx-4">
+        {/* Close button and form content same as original */}
         <button
           onClick={onClose}
           className="absolute right-3 top-3 z-999 flex h-9.5 w-9.5 items-center justify-center rounded-full bg-gray-100 text-gray-400 transition-colors hover:bg-gray-200 hover:text-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white sm:right-6 sm:top-6 sm:h-11 sm:w-11"
@@ -156,7 +186,7 @@ export const Step2FormCard: React.FC<Step2FormCardProps> = ({
 
         <form
           onSubmit={handleSubmit}
-          className="mt-4 w-full flex flex-col gap-4 "
+          className="mt-4 w-full flex flex-col gap-4"
         >
           <textarea
             placeholder="Catatan Validasi"
@@ -168,7 +198,6 @@ export const Step2FormCard: React.FC<Step2FormCardProps> = ({
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
             <div className="mt-8 space-y-4">
-              {/* === Card 1: Checkbox === */}
               <div className="border p-4 rounded-lg dark:border-gray-700">
                 <h3 className="text-sm font-semibold text-gray-700 dark:text-white mb-2">
                   Pilih Kriteria
@@ -197,8 +226,8 @@ export const Step2FormCard: React.FC<Step2FormCardProps> = ({
                 )}
               </div>
             </div>
+
             <div className="mt-8 space-y-4">
-              {/* === Card 2: Input Dinamis === */}
               {selectedCriteria.length > 0 && (
                 <div className="border p-4 rounded-lg dark:border-gray-700">
                   <h3 className="text-sm font-semibold text-gray-700 dark:text-white mb-2">
@@ -248,10 +277,10 @@ export const Step2FormCard: React.FC<Step2FormCardProps> = ({
             {isLoading ? (
               <>
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                Membuat Laporan...
+                Generate Ranking...
               </>
             ) : (
-              "Submit Report"
+              "Generate Ranking"
             )}
           </button>
         </form>
