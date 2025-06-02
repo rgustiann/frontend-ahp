@@ -27,3 +27,19 @@ export interface ReportData {
   jumlah_kebutuhan: number;
   tanggal_input?: string; 
 }
+
+interface PreviewRankingRequest {
+  nama_barang: string;
+  jumlah_kebutuhan: number;
+  usedCriteria: KriteriaThatWillbeUsed[];
+}
+
+interface CreateReportWithDataRequest {
+  nama_barang: string;
+  jumlah_kebutuhan: number;
+  pemesan: string;
+  no_telepon: string;
+  usedCriteria: KriteriaThatWillbeUsed[];
+  catatan_validasi: string;
+  rankingData: SupplierRanking[];
+}

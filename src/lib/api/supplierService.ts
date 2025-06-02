@@ -4,7 +4,6 @@ import { NilaiKriteriaServer, NilaiKriteriaInput } from '@/types/kriteria';
 import { SupplyDetail, SupplyInput } from "@/types/supply";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL + '/supplier';
-console.log(API_URL); 
 
 // -------------------- Supplier --------------------
 

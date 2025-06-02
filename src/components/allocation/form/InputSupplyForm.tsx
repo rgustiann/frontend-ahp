@@ -2,10 +2,13 @@
 import React, { useRef, useEffect, useState, Fragment } from "react";
 import Image from "next/image";
 import { useTheme } from "@/context/ThemeContext";
-import { useAuth } from "@/context/AuthContext"; // Import useAuth
+import { useAuth } from "@/context/AuthContext";
 import { SearchIcon, SearchDark } from "@/icons";
 import { inputSupply } from "@/lib/api/supplyService";
+import { getUniqueNamaSupply } from "@/lib/api/supplierService";
 import { toast } from "sonner";
+import { Dropdown } from "@/components/ui/dropdown/Dropdown";
+import { DropdownItem } from "@/components/ui/dropdown/DropdownItem";
 
 interface InputSupplyStepProps {
   isOpen: boolean;
@@ -19,7 +22,7 @@ const InputSupplyStep: React.FC<InputSupplyStepProps> = ({
   onNext,
 }) => {
   const { theme } = useTheme();
-  const { user } = useAuth(); 
+  const { user } = useAuth();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [namaPemesan, setNamaPemesan] = useState("");
@@ -27,13 +30,52 @@ const InputSupplyStep: React.FC<InputSupplyStepProps> = ({
   const [namaBarang, setNamaBarang] = useState("");
   const [jumlahKebutuhan, setJumlahKebutuhan] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-
   
+  // New states for dropdown functionality
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [supplyOptions, setSupplyOptions] = useState<string[]>([]);
+  const [filteredOptions, setFilteredOptions] = useState<string[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isLoadingOptions, setIsLoadingOptions] = useState(false);
+
   useEffect(() => {
     if (user?.username) {
       setNamaPemesan(user.username);
     }
   }, [user]);
+
+  // Fetch supply options when component mounts
+  useEffect(() => {
+    const fetchSupplyOptions = async () => {
+      setIsLoadingOptions(true);
+      try {
+        const options = await getUniqueNamaSupply();
+        setSupplyOptions(options);
+        setFilteredOptions(options);
+      } catch (error) {
+        toast.error("Gagal memuat daftar supply");
+        console.error("Error fetching supply options:", error);
+      } finally {
+        setIsLoadingOptions(false);
+      }
+    };
+
+    if (isOpen) {
+      fetchSupplyOptions();
+    }
+  }, [isOpen]);
+
+  // Filter options based on search term
+  useEffect(() => {
+    if (searchTerm.trim() === "") {
+      setFilteredOptions(supplyOptions);
+    } else {
+      const filtered = supplyOptions.filter(option =>
+        option.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredOptions(filtered);
+    }
+  }, [searchTerm, supplyOptions]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -47,7 +89,11 @@ const InputSupplyStep: React.FC<InputSupplyStepProps> = ({
 
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        onClose();
+        if (isDropdownOpen) {
+          setIsDropdownOpen(false);
+        } else {
+          onClose();
+        }
       }
     };
 
@@ -62,7 +108,7 @@ const InputSupplyStep: React.FC<InputSupplyStepProps> = ({
       document.removeEventListener("keydown", handleEscape);
       document.body.style.overflow = "unset";
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, isDropdownOpen, onClose]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,7 +131,7 @@ const InputSupplyStep: React.FC<InputSupplyStepProps> = ({
 
     if (!user?.id) {
       toast.warning("User tidak terautentikasi. Silakan login kembali.");
-      return; 
+      return;
     }
 
     setIsLoading(true);
@@ -104,6 +150,7 @@ const InputSupplyStep: React.FC<InputSupplyStepProps> = ({
       setNoHp("");
       setNamaBarang("");
       setJumlahKebutuhan("");
+      setSearchTerm("");
       onNext(response.catatan_supply_id);
     } catch (error: unknown) {
       if (typeof error === "object" && error !== null && "response" in error) {
@@ -122,17 +169,34 @@ const InputSupplyStep: React.FC<InputSupplyStepProps> = ({
     }
   };
 
+  const handleDropdownSelect = (option: string) => {
+    setNamaBarang(option);
+    setSearchTerm(option);
+    setIsDropdownOpen(false);
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    setNamaBarang(value);
+    setIsDropdownOpen(true);
+  };
+
+  const handleInputFocus = () => {
+    setIsDropdownOpen(true);
+  };
+
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 flex items-center justify-center overflow-y-auto modal z-99999">
-      {/* Backdrop/Overlay - Updated style */}
+      {/* Backdrop/Overlay */}
       <div
-        className="fixed inset-0 h-full w-full bg-gray-400/50 "
+        className="fixed inset-0 h-full w-full bg-gray-400/50"
         onClick={onClose}
       />
 
-      {/* Modal Content - Updated style */}
+      {/* Modal Content */}
       <div
         className="relative w-full max-w-lg rounded-3xl bg-white dark:bg-gray-900 p-5 md:p-6 flex flex-col items-center mx-4"
         onClick={(e) => e.stopPropagation()}
@@ -173,7 +237,7 @@ const InputSupplyStep: React.FC<InputSupplyStepProps> = ({
         </h3>
 
         <div className="mt-4 w-full">
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4  mx-auto w-full max-w-md">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4 mx-auto w-full max-w-md">
             <input
               type="text"
               placeholder="Nama Pemesan"
@@ -182,6 +246,7 @@ const InputSupplyStep: React.FC<InputSupplyStepProps> = ({
               disabled={isLoading}
               className="h-11 w-full rounded-lg border border-gray-200 bg-transparent px-4 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 disabled:opacity-50 disabled:cursor-not-allowed"
             />
+            
             <input
               type="tel"
               placeholder="No. HP"
@@ -190,15 +255,63 @@ const InputSupplyStep: React.FC<InputSupplyStepProps> = ({
               disabled={isLoading}
               className="h-11 w-full rounded-lg border border-gray-200 bg-transparent px-4 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 disabled:opacity-50 disabled:cursor-not-allowed"
             />
-            <input
-              ref={inputRef}
-              type="text"
-              placeholder="Nama Kebutuhan Supply"
-              value={namaBarang}
-              onChange={(e) => setNamaBarang(e.target.value)}
-              disabled={isLoading}
-              className="h-11 w-full rounded-lg border border-gray-200 bg-transparent px-4 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 disabled:opacity-50 disabled:cursor-not-allowed"
-            />
+            
+            {/* Dropdown Input for Nama Supply */}
+            <div className="relative">
+              <input
+                ref={inputRef}
+                type="text"
+                placeholder={isLoadingOptions ? "Memuat data supply..." : "Pilih atau ketik nama supply"}
+                value={searchTerm}
+                onChange={handleInputChange}
+                onFocus={handleInputFocus}
+                disabled={isLoading || isLoadingOptions}
+                className="dropdown-toggle h-11 w-full rounded-lg border border-gray-200 bg-transparent px-4 pr-10 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 disabled:opacity-50 disabled:cursor-not-allowed"
+              />
+              
+              {/* Dropdown Arrow */}
+              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <svg
+                  className={`w-4 h-4 text-gray-400 transition-transform ${
+                    isDropdownOpen ? "rotate-180" : ""
+                  }`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </div>
+
+              {/* Dropdown Menu */}
+              <Dropdown
+                isOpen={isDropdownOpen && !isLoadingOptions}
+                onClose={() => setIsDropdownOpen(false)}
+                className="w-full max-h-48 overflow-y-auto"
+              >
+                {filteredOptions.length > 0 ? (
+                  filteredOptions.map((option, index) => (
+                    <DropdownItem
+                      key={index}
+                      onClick={() => handleDropdownSelect(option)}
+                      baseClassName="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white cursor-pointer"
+                    >
+                      {option}
+                    </DropdownItem>
+                  ))
+                ) : (
+                  <div className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                    {searchTerm.trim() === "" ? "Tidak ada data supply" : "Tidak ada hasil yang ditemukan"}
+                  </div>
+                )}
+              </Dropdown>
+            </div>
+            
             <input
               type="number"
               placeholder="Jumlah Kebutuhan"
@@ -208,9 +321,10 @@ const InputSupplyStep: React.FC<InputSupplyStepProps> = ({
               disabled={isLoading}
               className="h-11 w-full rounded-lg border border-gray-200 bg-transparent px-4 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 disabled:opacity-50 disabled:cursor-not-allowed"
             />
+            
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || isLoadingOptions}
               className="h-11 w-full rounded-lg bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 transition-colors dark:bg-brand-500 dark:hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isLoading ? (

@@ -64,8 +64,8 @@ const ModalTooltip = ({ isOpen, onClose, title, children }: ModalProps) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0  backdrop-blur-sm bg-opacity-10 flex items-center justify-center z-99999">
-      <div className="bg-white border border-gray-400 p-2 dark:bg-gray-800 rounded-lg max-w-lg w-full mx-4 max-h-[80vh] overflow-hidden">
+    <div className="fixed inset-0 backdrop-blur-sm bg-opacity-10 flex items-center justify-center z-99999">
+      <div className="bg-white border border-gray-400 p-2 dark:bg-gray-800 rounded-lg max-w-sm w-full mx-4 max-h-[80vh] overflow-hidden">
         <div className="flex justify-between items-center p-4 border-b border-gray-200 dark:border-gray-600">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
             {title}
@@ -124,13 +124,13 @@ export default function TabelSupplier() {
           details.map((detail, index) => (
             <div
               key={index}
-              className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 border border-gray-200 dark:border-gray-600"
+              className="bg-gray-50 flex flex-row justify-between w-full dark:bg-gray-700/50 rounded-lg p-3 border border-gray-200 dark:border-gray-600"
             >
               <div className="font-medium text-gray-900 dark:text-white mb-1">
                 {detail.nama_supply}
               </div>
               <div className="text-sm text-gray-600 dark:text-gray-400">
-                <span className="inline-flex items-center px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded text-xs">
+                <span className="inline-flex items-center px-2 py-1 bg-blue-200 dark:bg-blue-900/30 text-blue-900 dark:text-blue-300 rounded text-sm">
                   Max: {detail.maksimal_produksi}
                 </span>
               </div>
