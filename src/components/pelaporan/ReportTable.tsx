@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { ReportData } from "@/types/report";
+import { ReportResponse } from "@/types/report";
 import {
   Table,
   TableBody,
@@ -9,10 +9,13 @@ import {
   TableRow,
 } from "../ui/table";
 interface Props {
-  reports: ReportData[];
+  reports: ReportResponse[];
 }
 
 const ReportTable: React.FC<Props> = ({ reports }) => {
+  const toCapitalCase = (text: string) =>
+    text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+
   return (
     <div className="overflow-hidden rounded-xl mt-8 border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
       <div className="max-w-full overflow-x-auto">
@@ -21,31 +24,31 @@ const ReportTable: React.FC<Props> = ({ reports }) => {
             <TableRow>
               <TableCell
                 isHeader
-                className="px-5 py-3 font-medium text-gray-500 text-start text-theme-sm dark:text-gray-400"
+                className="px-5 py-3 font-medium text-gray-500 text-center text-theme-sm dark:text-gray-400"
               >
                 Tanggal Laporan
               </TableCell>
               <TableCell
                 isHeader
-                className="px-5 py-3 font-medium text-gray-500 text-start text-theme-sm dark:text-gray-400"
+                className="px-5 py-3 font-medium text-gray-500 text-center text-theme-sm dark:text-gray-400"
               >
                 Nama Kebutuhan
               </TableCell>
               <TableCell
                 isHeader
-                className="px-5 py-3 font-medium text-gray-500 text-start text-theme-sm dark:text-gray-400"
+                className="px-5 py-3 font-medium text-gray-500 text-center text-theme-sm dark:text-gray-400"
               >
                 Jumlah
               </TableCell>
               <TableCell
                 isHeader
-                className="px-5 py-3 font-medium text-gray-500 text-start text-theme-sm dark:text-gray-400"
+                className="px-5 py-3 font-medium text-gray-500 text-center text-theme-sm dark:text-gray-400"
               >
                 Status
               </TableCell>
               <TableCell
                 isHeader
-                className="px-5 py-3 font-medium text-gray-500 text-start text-theme-sm dark:text-gray-400"
+                className="px-5 py-3 font-medium text-gray-500 text-center text-theme-sm dark:text-gray-400"
               >
                 Aksi
               </TableCell>
@@ -54,7 +57,7 @@ const ReportTable: React.FC<Props> = ({ reports }) => {
           <TableBody>
             {reports.map((report) => (
               <TableRow key={report.id}>
-                <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-md dark:text-gray-400">
+                <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-md dark:text-gray-400">
                   {new Date(report.tanggal_laporan).toLocaleDateString(
                     "id-ID",
                     {
@@ -65,41 +68,47 @@ const ReportTable: React.FC<Props> = ({ reports }) => {
                   )}
                 </TableCell>
 
-                <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-md dark:text-gray-400">
+                <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-md dark:text-gray-400">
                   {report.nama_kebutuhan}
                 </TableCell>
-                <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-md dark:text-gray-400">
+                <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-md dark:text-gray-400">
                   {report.jumlah_kebutuhan}
                 </TableCell>
-                <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-md dark:text-gray-400">
+                <TableCell className="px-4 py-3 text-gray-500 text-center text-theme-md dark:text-gray-400">
                   <span
-                    className={`px-2 py-1 rounded text-white text-xs font-medium ${
-                      report.status === "approved"
-                        ? "bg-green-500"
-                        : report.status === "rejected"
-                        ? "bg-red-500"
-                        : "bg-yellow-500"
+                    className={`py-2 text-center rounded text-white text-xs font-medium ${
+                      report.status === "disetujui"
+                        ? "bg-green-500 px-4"
+                        : report.status === "ditolak"
+                        ? "bg-red-500 px-5"
+                        : "bg-yellow-500 px-2.5"
                     }`}
                   >
-                    {report.status}
+                    {toCapitalCase(report.status)}
                   </span>
                 </TableCell>
-                <TableCell className="px-4 py-2 space-x-2">
-                  <a
-                    href={report.file_path}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline"
-                  >
-                    Lihat PDF
-                  </a>
-                  <a
-                    href={report.file_path}
-                    download
-                    className="text-green-600 hover:underline"
-                  >
-                    Download
-                  </a>
+                <TableCell className="px-4 py-2 text-center space-x-2">
+                  {report.file_path ? (
+                    <div className="flex justify-center items-center space-x-4">
+                      <a
+                        href={report.file_path}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline"
+                      >
+                        Lihat PDF
+                      </a>
+                      <a
+                        href={report.file_path}
+                        download
+                        className="text-red-600 hover:underline"
+                      >
+                        Download
+                      </a>
+                    </div>
+                  ) : (
+                    <span className="text-gray-500 italic">Tidak ada file</span>
+                  )}
                 </TableCell>
               </TableRow>
             ))}

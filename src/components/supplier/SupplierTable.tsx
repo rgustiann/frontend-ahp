@@ -113,7 +113,7 @@ export default function TabelSupplier() {
   const [isEdit, setIsEdit] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 3;
+  const totalSteps = 2;
 
   const openSupplyModal = (supplier: Supplier) => {
     const details = supplierDetails[supplier.id] || [];
@@ -146,65 +146,6 @@ export default function TabelSupplier() {
     setIsModalOpen(true);
   };
 
-  const openKriteriaModal = (supplier: Supplier) => {
-    const nilaiKriteria = supplierNilaiKriteria[supplier.id] || [];
-    const avgScore =
-      nilaiKriteria.length > 0
-        ? Math.round(
-            nilaiKriteria.reduce((sum, nk) => sum + (nk?.nilai ?? 0), 0) /
-              nilaiKriteria.length
-          )
-        : 0;
-
-    setModalTitle(`Kriteria Penilaian - ${supplier.nama}`);
-    setModalContent(
-      <div className="space-y-3">
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-              {avgScore}
-            </div>
-            <div className="text-sm text-blue-600 dark:text-blue-400">
-              Rata-rata Skor
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          {kriteriaList.map((kriteria) => {
-            const nilai = nilaiKriteria.find(
-              (nk) => nk.kriteriaId === kriteria.id
-            );
-            const score = nilai ? nilai.nilai : 0;
-            const percentage = ((score ?? 0) / 100) * 100;
-            return (
-              <div
-                key={kriteria.id}
-                className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3"
-              >
-                <div className="flex justify-between items-center mb-2">
-                  <span className="font-medium text-gray-900 dark:text-white">
-                    {kriteria.nama}
-                  </span>
-                  <span className="text-lg font-semibold text-gray-700 dark:text-gray-300">
-                    {score}
-                  </span>
-                </div>
-                <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
-                  <div
-                    className="bg-gradient-to-r from-blue-500 to-indigo-500 h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${percentage}%` }}
-                  ></div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    );
-    setIsModalOpen(true);
-  };
-
   const renderSupplyDetails = (supplier: Supplier) => {
     const details = supplierDetails[supplier.id] || [];
 
@@ -229,41 +170,6 @@ export default function TabelSupplier() {
     );
   };
 
-  // 8. Tambahkan function untuk render Kriteria dengan tooltip
-  const renderKriteria = (supplier: Supplier) => {
-    const nilaiKriteria = supplierNilaiKriteria[supplier.id] || [];
-    if (nilaiKriteria.length === 0) {
-      return <span className="text-gray-400">-</span>;
-    }
-
-    const avgScore = Math.round(
-      nilaiKriteria.reduce((sum, nk) => sum + (nk.nilai ?? 0), 0) /
-        nilaiKriteria.length
-    );
-
-    // Warna berdasarkan skor
-    const getScoreColor = (score: number) => {
-      if (score >= 8) return "text-green-600 dark:text-green-400";
-      if (score >= 7) return "text-yellow-600 dark:text-yellow-400";
-      return "text-red-600 dark:text-red-400";
-    };
-
-    return (
-      <div className="flex items-center gap-4">
-        <span className={`text-sm font-medium ${getScoreColor(avgScore)}`}>
-          Avg: {avgScore}
-        </span>
-
-        <button
-          onClick={() => openKriteriaModal(supplier)}
-          className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
-          title="Lihat detail penilaian"
-        >
-          <Eye size={16} />
-        </button>
-      </div>
-    );
-  };
   const nextStep = () => {
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
@@ -434,8 +340,7 @@ export default function TabelSupplier() {
         return formData.supplierDetails.some(
           (detail) => detail.nama_supply.trim() !== ""
         );
-      case 3:
-        return true; // Kriteria bisa kosong
+// Kriteria bisa kosong
       default:
         return false;
     }
@@ -443,7 +348,7 @@ export default function TabelSupplier() {
 
   const StepIndicator = () => (
     <div className="flex items-center justify-between mb-8">
-      {[1, 2, 3].map((step) => (
+      {[1, 2].map((step) => (
         <div key={step} className="flex items-center">
           <div
             className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${
@@ -457,17 +362,7 @@ export default function TabelSupplier() {
           <div className="ml-2 text-sm font-medium">
             {step === 1 && "Info Dasar"}
             {step === 2 && "Detail Supply"}
-            {step === 3 && "Penilaian"}
           </div>
-          {step < 3 && (
-            <div
-              className={`w-12 h-0.5 ml-4 ${
-                currentStep > step
-                  ? "bg-brand-600"
-                  : "bg-gray-200 dark:bg-gray-700"
-              }`}
-            />
-          )}
         </div>
       ))}
     </div>
@@ -787,15 +682,6 @@ export default function TabelSupplier() {
     }));
   };
 
-  const handleNilaiKriteriaChange = (kriteriaId: number, nilai: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      nilaiKriteria: prev.nilaiKriteria.map((item) =>
-        item.kriteriaId === kriteriaId ? { ...item, nilai } : item
-      ),
-    }));
-  };
-
   const openDeleteDialog = (supplier: Supplier) => {
     setSupplierToDelete(supplier);
     setIsDeleteDialogOpen(true);
@@ -857,12 +743,7 @@ export default function TabelSupplier() {
                   >
                     Supply Details
                   </TableCell>
-                  <TableCell
-                    isHeader
-                    className="px-5 py-3 font-medium text-gray-500 text-start text-theme-sm dark:text-gray-400"
-                  >
-                    Kriteria
-                  </TableCell>
+
                   <TableCell
                     isHeader
                     className="px-5 py-3 font-medium text-gray-500 text-start text-theme-sm dark:text-gray-400"
@@ -917,9 +798,6 @@ export default function TabelSupplier() {
                         </TableCell>
                         <TableCell className="px-4 py-3 text-gray-500 text-start text-sm dark:text-gray-400">
                           {renderSupplyDetails(supplier)}
-                        </TableCell>
-                        <TableCell className="px-4 py-3 text-gray-500 text-start text-sm dark:text-gray-400">
-                          {renderKriteria(supplier)}
                         </TableCell>
                         <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-md dark:text-gray-400">
                           {supplier.keterangan}
@@ -1124,47 +1002,6 @@ export default function TabelSupplier() {
                     </div>
                   </div>
                 ))}
-              </div>
-            </div>
-          )}
-
-          {/* Step 3: Nilai Kriteria */}
-          {currentStep === 3 && (
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-                Penilaian Kriteria
-              </h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
-                {kriteriaList.map((kriteria) => {
-                  const nilaiItem = formData.nilaiKriteria.find(
-                    (item) => item.kriteriaId === kriteria.id
-                  );
-                  return (
-                    <div
-                      key={kriteria.id}
-                      className="p-3 border border-gray-200 rounded-lg dark:border-gray-700"
-                    >
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        {kriteria.nama}
-                      </label>
-                      <input
-                        type="number"
-                        placeholder="0"
-                        value={nilaiItem?.nilai || ""}
-                        onChange={(e) =>
-                          handleNilaiKriteriaChange(
-                            kriteria.id,
-                            parseFloat(e.target.value) || 0
-                          )
-                        }
-                        className="w-full h-9 rounded-lg border border-gray-300 bg-transparent px-3 py-2 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-2 focus:ring-brand-500/10 dark:border-gray-600 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-                        min="0"
-                        step="0.1"
-                      />
-                    </div>
-                  );
-                })}
               </div>
             </div>
           )}

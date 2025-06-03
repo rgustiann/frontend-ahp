@@ -1,11 +1,11 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { getAllReports } from "@/lib/api/reportService";
-import { ReportData } from "@/types/report";
+import { ReportResponse } from "@/types/report";
 import ManagerReportTable from "@/components/pelaporan/ManagerReportTable";
 
 const ManagerPage = () => {
-  const [reports, setReports] = useState<ReportData[]>([]);
+  const [reports, setReports] = useState<ReportResponse[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchReports = async () => {

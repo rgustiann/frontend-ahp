@@ -12,6 +12,12 @@ export const getAllSuppliers = async (): Promise<Supplier[]> => {
   return response.data;
 };
 
+export const getSupplierBySupply = async (nama_supply: string): Promise<Supplier[]> => {
+  const encodedNamaSupply = encodeURIComponent(nama_supply);
+  const response = await axiosInstance.get(`${API_URL}/${encodedNamaSupply}/getBySupply`);
+  return response.data;
+};
+
 export const getSupplierById = async (id: number): Promise<Supplier> => {
   const response = await axiosInstance.get(`${API_URL}/${id}`);
   return response.data;

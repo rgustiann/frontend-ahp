@@ -17,6 +17,6 @@ export const managerNavItems = [
     name: "Approve Laporan",
     icon: PageIcon,
     iconDark: PagesDark,
-    path: "/manager/laporan",
+    path: "/manager/approval",
   },
 ];

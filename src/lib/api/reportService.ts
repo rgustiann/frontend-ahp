@@ -1,21 +1,26 @@
-import { ApprovalPayload, CreateReportPayload, CreateReportResponse, CreateReportWithDataRequest, PreviewRankingRequest, ReportData } from "@/types/report";
+import { ApprovalPayload, CreateReportPayload, GenerateRankingPayload, GenerateRankingResponse, PreviewRankingRequest, ReportData, ReportResponse } from "@/types/report";
 import axiosInstance from "./axios";
-import { GenerateRankingResponse, RankingInput } from "@/types/ranking";
+import { RankingInput } from "@/types/ranking";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL + "/reports"
 
 export const generateRankingFromSupplyData = async (
   data: RankingInput
 ): Promise<GenerateRankingResponse> => {
-  const response = await axiosInstance.post(`${API_URL}/generate-rankSupplier`, data);
+  const response = await axiosInstance.post(`${API_URL}/generate_rankSupplier`, data);
   return response.data;
 };
 
-export const createReport = async (
-  data: CreateReportPayload
-): Promise<CreateReportResponse> => {
-  const response = await axiosInstance.post(`${API_URL}/create-report`, data);
+export const createReport = async (data: CreateReportPayload) => {
+  const response = await axiosInstance.post(`${API_URL}/create-report`, data)
   return response.data;
+};
+
+export const generateRanking = async (
+  data: GenerateRankingPayload
+): Promise<GenerateRankingResponse> => {
+    const response = await axiosInstance.post(`${API_URL}/generate_rankSupplier`, data);
+    return response.data;
 };
 
 // NEW: Function to check PDF generation status
@@ -27,12 +32,12 @@ export const checkPDFStatus = async (reportId: number): Promise<{
   return response.data;
 };
 
-export const getAllReports = async (): Promise<ReportData[]> => {
+export const getAllReports = async (): Promise<ReportResponse[]> => {
   const response = await axiosInstance.get(API_URL);
   return response.data;
 };
 
-export const getReportByIdStaff = async (staff_id: number): Promise<ReportData[]> => {
+export const getReportByIdStaff = async (staff_id: number): Promise<ReportResponse[]> => {
   const response = await axiosInstance.get(`${API_URL}/staffReport/${staff_id}`);
   console.log("API AMBIL Report", `${API_URL}/staffReport/${staff_id}`);
   return response.data;
@@ -66,8 +71,3 @@ export const previewRanking = async (data: PreviewRankingRequest) => {
   return response.data;
 };
 
-// FIXED: Template literal syntax error
-export const createReportWithData = async (data: CreateReportWithDataRequest) => {
-  const response = await axiosInstance.post(`${API_URL}/create-with-data`, data);
-  return response.data;
-};

@@ -2,7 +2,6 @@ import {
   GridIcon,
   ListIcon,
   PageIcon,
-  TableIcon,
   CalenderIcon,
   DocsIcon,
   DocsDark,
@@ -10,7 +9,6 @@ import {
   ListDark,
   PagesDark,
   GridDark,
-  TableDark,
 } from "../icons/index";
 
 export const staffNavItems = [
@@ -31,12 +29,6 @@ export const staffNavItems = [
     icon: PageIcon,
     iconDark: PagesDark,
     path: "/staff/kriteria",
-  },
-  {
-    name: "Perhitungan",
-    icon: TableIcon,
-    iconDark: TableDark,
-    path: "/staff/ahp-result",
   },
   {
     name: "Pengalokasian",
