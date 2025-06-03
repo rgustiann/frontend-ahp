@@ -33,7 +33,7 @@ export default function AuthLayout({
                 />
               </Link>
               <p className="text-gray-100 dark:text-white/60 text-lg font-normal">
-                we wok de tok not onle tok de tok
+                Website Perhitungan AHP
               </p>
             </div>
           </aside>
