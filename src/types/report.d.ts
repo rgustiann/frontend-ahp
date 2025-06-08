@@ -3,24 +3,6 @@ export interface UsedCriteria {
   criteriaValue: number;
 }
 
-export interface CreateReportPayload {
-  nama_supply: string;
-  jumlah_kebutuhan: number;
-  nama_pemesan: string;
-  no_telp_pemesan: string;
-  rankings: Array<{
-    supplierName: string;
-    nama_supply: string;
-    ranking: number;
-    alokasi_kebutuhan: number;
-  }>;
-  usedCriteria: Array<{
-    criteriaName: string;
-    criteriaValue: number;
-  }>;
-  catatan_validasi: string;
-}
-
 export interface CreateReportResponse {
   message: string;
   report_id: number;
@@ -108,7 +90,7 @@ export interface AHPResult {
 
 export interface CriteriaWeight {
   criteria_id: number;
-  weight: number;
+  weight_value: number;
 }
 
 export interface GenerateRankingResponse {
@@ -160,5 +142,10 @@ export interface CreateReportPayload {
   consistency_ratios?: {
     criteria?: number;
   };
-  rankings: RankingData[];
+  rankings: Array<{
+    supplierName: string;
+    nama_supply: string;
+    ranking: number;
+    alokasi_kebutuhan: number;
+  }>;
 }

@@ -29,8 +29,10 @@ import {
   AHPResult,
   ComparisonMatrix,
   CreateReportPayload,
+  CriteriaComparisonReport,
   GenerateRankingPayload,
   ReportData,
+  SupplierComparisonReport,
   SupplierComparisons,
 } from "@/types/report";
 import Select from "@/components/form/Select";
@@ -318,6 +320,34 @@ export default function ReportPage() {
       return;
     }
 
+    const criteriaComparisons: CriteriaComparisonReport[] = [];
+    criteria.forEach((a) => {
+      criteria.forEach((b) => {
+        if (a.id !== b.id) {
+          criteriaComparisons.push({
+            criteria_a_id: a.id,
+            criteria_b_id: b.id,
+            comparison_value: criteriaComparisonData[a.id]?.[b.id] || 1,
+          });
+        }
+      });
+    });
+
+    const supplierComparisons: SupplierComparisonReport[] = [];
+    criteria.forEach((criterion) => {
+      const comparisons = comparisonData[criterion.id];
+      for (const supplierA in comparisons) {
+        for (const supplierB in comparisons[supplierA]) {
+          supplierComparisons.push({
+            criteria_id: criterion.id,
+            supplier_a_id: parseInt(supplierA),
+            supplier_b_id: parseInt(supplierB),
+            comparison_value: comparisons[supplierA][supplierB],
+          });
+        }
+      }
+    });
+
     try {
       setIsLoading(true);
       setIsCreatingReport(true);
@@ -327,16 +357,20 @@ export default function ReportPage() {
         nama_supply: selectedSupply,
         ranking: result.ranking,
         alokasi_kebutuhan: result.jumlah_alokasi,
-        score: result.score
+        score: result.score,
       }));
-      console.log("Anjing kerah = ", rankings)
-      console.log("Anjing Ngentot = ", transformedRankings)
       const criteriaWeights = calculateCriteriaWeights();
+      const criteriaWeightsArray = criteria.map((criterion) => ({
+        criteria_id: criterion.id,
+        weight_value: criteriaWeights[criterion.id] || 0,
+      }));
       const usedCriteria = criteria.map((criterion) => ({
         criteriaName: criterion.nama,
         criteriaValue: criteriaWeights[criterion.id] || 0,
       }));
-
+      console.log("Consistency Ratios before submit:", consistencyRatios);
+      const consistencyRatioValue = consistencyRatios?.["criteria"] ?? null;
+      console.log("Consistency Ratios Values before submit:", consistencyRatioValue);
       const payload: CreateReportPayload = {
         nama_supply: selectedSupply,
         jumlah_kebutuhan: jumlahKebutuhan,
@@ -345,6 +379,12 @@ export default function ReportPage() {
         catatan_validasi: catatanValidasi,
         rankings: transformedRankings,
         usedCriteria: usedCriteria,
+        criteria_comparisons: criteriaComparisons,
+        supplier_comparisons: supplierComparisons,
+        criteria_weights: criteriaWeightsArray,
+        consistency_ratios: {
+          criteria: consistencyRatioValue,
+        },
       };
 
       const response = await createReport(payload);
@@ -658,7 +698,6 @@ export default function ReportPage() {
       };
       // Call API
       const response = await generateRanking(payload);
-      console.log("Anjin : ", response);
       if (response && response.data && Array.isArray(response.data.rankings)) {
         const transformedRankings = response.data.rankings.map((result) => {
           const supplier = suppliers.find((s) => s.id === result.supplierId);
