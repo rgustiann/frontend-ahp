@@ -7,7 +7,7 @@ import * as Icons from "@/icons";
 import Link from "next/link";
 import { register as apiRegister } from "@/lib/api/authService";
 import { useRouter } from "next/navigation";
-
+import axios from "axios";
 export default function SignUpForm() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
@@ -27,7 +27,10 @@ export default function SignUpForm() {
       await apiRegister({ username, password, email, role });
       router.push("/login");
     } catch (err: unknown) {
-      if (err instanceof Error) {
+      if (axios.isAxiosError(err)) {
+        const message = err.response?.data?.message || "Registrasi gagal.";
+        setError(message);
+      } else if (err instanceof Error) {
         setError(err.message || "Registrasi gagal.");
       } else {
         setError("Terjadi kesalahan saat registrasi.");

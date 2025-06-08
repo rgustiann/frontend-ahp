@@ -5,6 +5,7 @@ import { login as apiLogin, logout as apiLogout } from "@/lib/api/authService";
 import { DecodedToken, User } from "@/types/user";
 import { AuthContextType } from "@/types/auth";
 import { jwtDecode } from "jwt-decode";
+import axios from "axios";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -34,7 +35,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
           const parsedUser: User = JSON.parse(userData);
           setUser({ ...parsedUser, iat: decoded.iat, exp: decoded.exp });
-
         } catch (err) {
           console.error("Token decode error:", err);
           localStorage.removeItem("token");
@@ -49,16 +49,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const login = async (username: string, password: string) => {
-    const { token, user } = await apiLogin(username, password);
-    localStorage.setItem("token", token);
-    localStorage.setItem("user", JSON.stringify(user));
-    setUser(user);
-    console.log("Bearer Token:", token);
-    // Role-based redirection
-    if (user.role === "staff") {
-      router.push("/staff/");
-    } else {
-      router.push("/manager/");
+    try {
+      const { token, user } = await apiLogin(username, password);
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+      setUser(user);
+      console.log("Bearer Token:", token);
+
+      if (user.role === "staff") {
+        router.push("/staff/");
+      } else {
+        router.push("/manager/");
+      }
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        const message =
+          err.response?.data?.message || "Login gagal. Silakan coba lagi.";
+        throw new Error(message);
+      } else {
+        throw new Error("Terjadi kesalahan jaringan.");
+      }
     }
   };
 
@@ -71,7 +81,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isAuthenticated: !!user, loading }}>
+    <AuthContext.Provider
+      value={{ user, login, logout, isAuthenticated: !!user, loading }}
+    >
       {children}
     </AuthContext.Provider>
   );
