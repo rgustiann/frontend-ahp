@@ -113,14 +113,6 @@ export default function SignInForm() {
               {error && (
                 <p className="text-error-500 text-sm font-medium">{error}</p>
               )}
-              <div className="flex items-center justify-end">
-                <Link
-                  href="/reset-password"
-                  className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400"
-                >
-                  Forgot password?
-                </Link>
-              </div>
               <div>
                 <Button className="w-full" size="sm" disabled={loading}>
                   {loading ? "Loading..." : "Sign in"}

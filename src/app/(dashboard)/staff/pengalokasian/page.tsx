@@ -37,6 +37,7 @@ import {
 } from "@/types/report";
 import Select from "@/components/form/Select";
 import Link from "next/link";
+import { calculateAHPWeights } from "@/utils/ahp";
 
 // Types
 interface ComparisonData {
@@ -370,7 +371,10 @@ export default function ReportPage() {
       }));
       console.log("Consistency Ratios before submit:", consistencyRatios);
       const consistencyRatioValue = consistencyRatios?.["criteria"] ?? null;
-      console.log("Consistency Ratios Values before submit:", consistencyRatioValue);
+      console.log(
+        "Consistency Ratios Values before submit:",
+        consistencyRatioValue
+      );
       const payload: CreateReportPayload = {
         nama_supply: selectedSupply,
         jumlah_kebutuhan: jumlahKebutuhan,
@@ -510,7 +514,6 @@ export default function ReportPage() {
       return newData;
     });
 
-    // Clear error for this comparison
     setErrors((prev) => {
       const newErrors = { ...prev };
       delete newErrors[`supplier_${criteriaId}_${supplierA}_${supplierB}`];
@@ -518,61 +521,35 @@ export default function ReportPage() {
     });
   };
 
-  const calculateConsistencyRatio = (matrix: number[][]): number => {
-    const n = matrix.length;
-    if (n <= 2) return 0;
+  const calculateConsistencyRatio = useCallback(
+    (matrix: number[][]): number => {
+      const n = matrix.length;
+      if (n <= 2) return 0;
 
-    // Calculate column sums
-    const colSums = Array(n).fill(0);
-    for (let i = 0; i < n; i++) {
-      for (let j = 0; j < n; j++) {
-        colSums[j] += matrix[i][j];
+      const weights = calculateAHPWeights(matrix);
+      const weightedSumVector = new Array(n).fill(0);
+
+      for (let i = 0; i < n; i++) {
+        for (let j = 0; j < n; j++) {
+          weightedSumVector[i] += matrix[i][j] * weights[j];
+        }
       }
-    }
 
-    // Normalize matrix
-    const normalizedMatrix = matrix.map((row) =>
-      row.map((val, j) => val / colSums[j])
-    );
-
-    // Calculate priorities (row averages)
-    const priorities = normalizedMatrix.map(
-      (row) => row.reduce((sum, val) => sum + val, 0) / n
-    );
-
-    // Calculate weighted sum
-    const weightedSum = matrix.map((row) =>
-      row.reduce((sum, val, j) => sum + val * priorities[j], 0)
-    );
-
-    // Calculate consistency vector
-    const consistencyVector = weightedSum.map((val, i) => val / priorities[i]);
-    const lambdaMax = consistencyVector.reduce((sum, val) => sum + val, 0) / n;
-
-    // Calculate CI and CR
-    const ci = (lambdaMax - n) / (n - 1);
-    const ri = CONSISTENCY_INDEX[n] || 1.49;
-
-    return ci / ri;
-  };
-
-  // Calculate AHP weights using Geometric Mean Method
-  const calculateAHPWeights = (matrix: number[][]): number[] => {
-    const n = matrix.length;
-    const weights = [];
-
-    for (let i = 0; i < n; i++) {
-      let product = 1;
-      for (let j = 0; j < n; j++) {
-        product *= matrix[i][j];
+      let lambdaMax = 0;
+      for (let i = 0; i < n; i++) {
+        if (weights[i] !== 0) {
+          lambdaMax += weightedSumVector[i] / weights[i];
+        }
       }
-      weights.push(Math.pow(product, 1 / n));
-    }
+      lambdaMax = lambdaMax / n;
 
-    // Normalize weights
-    const sum = weights.reduce((total, weight) => total + weight, 0);
-    return weights.map((weight) => weight / sum);
-  };
+      const ci = (lambdaMax - n) / (n - 1);
+      const ri = CONSISTENCY_INDEX[n] || 1.49;
+
+      return ci / ri;
+    },
+    []
+  ); 
 
   // Validate all comparisons
   const validateComparisons = useCallback((): boolean => {
@@ -627,7 +604,13 @@ export default function ReportPage() {
     setErrors(newErrors);
     setConsistencyRatios(newConsistencyRatios);
     return !hasErrors;
-  }, [comparisonData, criteria, criteriaComparisonData, suppliers]);
+  }, [
+    comparisonData,
+    criteria,
+    criteriaComparisonData,
+    suppliers,
+    calculateConsistencyRatio,
+  ]);
 
   const handleCalculate = useCallback(async () => {
     if (!validateComparisons()) {
