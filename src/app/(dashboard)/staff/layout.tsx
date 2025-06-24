@@ -6,6 +6,7 @@ import AppSidebar from "@/layout/AppSidebar";
 import Backdrop from "@/layout/Backdrop";
 import { staffNavItems } from "@/constant/staffNav";
 import RequireAuth from "@/context/RequireAuth";
+import { AllocationProvider } from "@/context/AlokasiContext";
 
 export default function AdminLayout({
   children,
@@ -22,18 +23,20 @@ export default function AdminLayout({
 
   return (
     <RequireAuth allowedRoles={["staff"]}>
-      <div className="min-h-screen xl:flex">
-        <AppSidebar navItems={staffNavItems} />
-        <Backdrop />
-        <div
-          className={`flex-1 transition-all  duration-300 ease-in-out ${mainContentMargin}`}
-        >
-          <AppHeader />
-          <div className="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">
-            {children}
+      <AllocationProvider>
+        <div className="min-h-screen xl:flex">
+          <AppSidebar navItems={staffNavItems} />
+          <Backdrop />
+          <div
+            className={`flex-1 transition-all  duration-300 ease-in-out ${mainContentMargin}`}
+          >
+            <AppHeader />
+            <div className="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">
+              {children}
+            </div>
           </div>
         </div>
-      </div>
+      </AllocationProvider>
     </RequireAuth>
   );
 }

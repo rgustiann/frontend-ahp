@@ -54,7 +54,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
       setUser(user);
-      console.log("Bearer Token:", token);
 
       if (user.role === "staff") {
         router.push("/staff/");

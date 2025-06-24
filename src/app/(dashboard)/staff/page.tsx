@@ -1,50 +1,44 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { DataGeneralStaff } from "@/components/visualization/DataGeneral";
-import { getAllSuppliers } from "@/lib/api/supplierService";
-import { getReportByIdStaff } from "@/lib/api/reportService";
+import React from "react";
 import { useAuth } from "@/context/AuthContext";
 
 export default function StaffHomePage() {
   const { user } = useAuth();
-  const [supplierCount, setSupplierCount] = useState(0);
-  const [reportCount, setReportCount] = useState(0);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!user) return;
-
-      try {
-        const [suppliers, reports] = await Promise.all([
-          getAllSuppliers(),
-          getReportByIdStaff(user.id),
-        ]);
-        console.log("suppliers", suppliers);
-        setSupplierCount(suppliers.length);
-        setReportCount(reports.length);
-        console.log("Laporan di Home", reports);
-      } catch (err) {
-        console.error("Gagal mengambil data:", err);
-      }
-    };
-
-    fetchData();
-  }, [user]);
 
   return (
     <div className="grid grid-cols-12 md:gap-6">
-      <div className="col-span-12 space-y-6 xl:col-span-7">
-        <h1 className="font-bold text-6xl dark:text-gray-300">
+      <div className="hidden xl:col-span-1 xl:block"></div>
+      <div className="col-span-12 space-y-6 xl:col-span-10">
+        <h1 className="font-bold text-6xl text-center dark:text-gray-300">
           Selamat Datang, {user?.username || "Pengguna"}!
         </h1>
-        <h2 className="dark:text-gray-400">
-          Berikut adalah informasi yang tersimpan dalam basis data:
-        </h2>
-        <DataGeneralStaff
-          supplierCount={supplierCount}
-          reportCount={reportCount}
-        />
+        <div className="mt-10 p-6 bg-white/70 dark:bg-gray-800 rounded-2xl shadow-md space-y-4">
+          <p className="text-gray-800 dark:text-gray-100 text-justify text-lg leading-relaxed">
+            Anda telah berhasil masuk ke dalam{" "}
+            <strong>sistem informasi pemilihan supplier</strong> pada{" "}
+            <strong>Divisi Alat Berat PT. Pindad (Persero)</strong>. Sistem ini
+            dirancang untuk membantu proses pengambilan keputusan dalam
+            menentukan prioritas supplier berdasarkan berbagai kriteria
+            penilaian.
+          </p>
+          <p className="text-gray-800 dark:text-gray-100 text-justify text-lg leading-relaxed">
+            <strong>Apa itu AHP?</strong>
+            <br />
+            Metode <em>Analytical Hierarchy Process (AHP)</em> adalah pendekatan
+            pengambilan keputusan yang membantu membandingkan beberapa
+            alternatif secara terstruktur berdasarkan sejumlah kriteria.
+          </p>
+          <p className="text-gray-800 dark:text-gray-100 text-justify text-lg leading-relaxed">
+            <strong>Bagaimana Sistem Ini Bekerja?</strong>
+            <br />
+            Pengguna dapat memasukkan data supplier dan kriteria penilaian,
+            kemudian melakukan perbandingan antar supplier sesuai bahan baku
+            yang dipilih. Hasil perhitungan akan ditampilkan secara otomatis,
+            lengkap dengan tingkat konsistensinya, dan dapat diajukan untuk
+            disetujui oleh pihak manajer melalui laporan akhir.
+          </p>
+        </div>
       </div>
     </div>
   );

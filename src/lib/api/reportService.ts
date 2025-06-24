@@ -39,7 +39,6 @@ export const getAllReports = async (): Promise<ReportResponse[]> => {
 
 export const getReportByIdStaff = async (staff_id: number): Promise<ReportResponse[]> => {
   const response = await axiosInstance.get(`${API_URL}/staffReport/${staff_id}`);
-  console.log("API AMBIL Report", `${API_URL}/staffReport/${staff_id}`);
   return response.data;
 };
 

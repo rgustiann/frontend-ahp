@@ -2,7 +2,6 @@ import axios from 'axios';
 import { jwtDecode } from "jwt-decode";
 import { DecodedToken } from '@/types/user';
 const API_URL = process.env.NEXT_PUBLIC_API_URL + '/auth'
-console.log("API URL:", API_URL);
 
 
 export const getToken = () => {
@@ -29,7 +28,6 @@ export async function login(username: string, password: string) {
 }
 
 export async function register({ username, password, email, role }: { username: string; password: string; email: string; role: string }) {
-  console.log("Register API URL:", `${API_URL}/register`);
   const response = await axios.post(`${API_URL}/register`, { username, password, email, role });
   return response.data;
 }

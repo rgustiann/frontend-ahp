@@ -12,7 +12,7 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative min-h-screen bg-blue-light-50 dark:bg-gray-900">
+    <div className="relative min-h-screen bg-white dark:bg-gray-900">
       <ThemeProvider>
         <div className="flex flex-col lg:flex-row min-h-screen">
           {/* Left side: main content */}
@@ -20,25 +20,33 @@ export default function AuthLayout({
             {children}
           </main>
           {/* Right side: sidebar with grid shape and logo */}
-          <aside className="hidden lg:flex flex-col items-center justify-center flex-1 bg-sky-900 dark:bg-white/5 relative overflow-hidden">
+          <aside className="hidden lg:flex flex-col items-center justify-center flex-1 bg-blue-light-100 dark:bg-white/5 relative overflow-hidden">
             <GridShape />
-            <div className="relative z-10 flex flex-col items-center max-w-xs px-6 text-center">
+            <div className="relative z-10 flex flex-col items-center max-w-sm px-6 text-center">
               <Link href="/" className="block mb-6">
                 <Image
                   width={231}
                   height={48}
-                  src="/images/logo/logo.png"
+                  src="/images/logo/logo_pindad.png"
                   alt="Logo"
                   priority
                 />
               </Link>
-              <p className="text-gray-100 dark:text-white/60 text-lg font-normal">
-                Website Perhitungan AHP
+              <p className="text-sky-900 dark:text-white/60 text-lg font-semibold">
+                PT. PINDAD
+              </p>
+              <p className="text-sky-900 dark:text-white/60 text-base">
+                Divisi Alat Berat
+              </p>
+              <p className="text-sky-900 dark:text-white/60 text-sm mt-2">
+                Sistem Informasi Pemilihan Prioritas Supplier
+              </p>
+              <p className="text-sky-900 dark:text-white/60 text-sm">
+                Metode Analytical Hierarchy Process (AHP)
               </p>
             </div>
           </aside>
 
-          {/* Theme toggle fixed */}
           <div className="fixed bottom-6 right-6 z-50 hidden sm:block">
             <ThemeTogglerTwo />
           </div>

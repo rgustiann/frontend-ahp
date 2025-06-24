@@ -38,21 +38,10 @@ import {
 import Select from "@/components/form/Select";
 import Link from "next/link";
 import { calculateAHPWeights } from "@/utils/ahp";
+import { ComparisonData, CriteriaComparisonData } from "@/types/report";
+import { useAllocation } from "@/context/AlokasiContext";
 
 // Types
-interface ComparisonData {
-  [criteriaId: number]: {
-    [supplierA: number]: {
-      [supplierB: number]: number;
-    };
-  };
-}
-
-interface CriteriaComparisonData {
-  [criteriaA: number]: {
-    [criteriaB: number]: number;
-  };
-}
 
 const CONSISTENCY_INDEX: { [key: number]: number } = {
   1: 0,
@@ -73,46 +62,140 @@ type AHPOption = {
 };
 
 export default function ReportPage() {
-  // Ini buat datanya ya
-  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
-  const [criteria, setCriteria] = useState<Kriteria[]>([]);
-  const [supplyOptions, setSupplyOptions] = useState<string[]>([]);
-  const [selectedSupply, setSelectedSupply] = useState("");
-  const [supplierDetails, setSupplierDetails] = useState<
-    Record<number, SupplierDetail[]>
-  >({});
+  const { allocationData, updateAllocationData, clearAllocationData } =
+    useAllocation();
 
-  // trus inu buat dropdown
+  // State yang persist (dari context) - destructuring
+  const {
+    suppliers,
+    criteria,
+    selectedSupply,
+    supplierDetails,
+    comparisonData,
+    criteriaComparisonData,
+    jumlahKebutuhan,
+    namaPemesan,
+    noTelpPemesan,
+    catatanValidasi,
+    showSupplierData,
+    showRankingTable,
+    isReportCreated,
+    supplierTab,
+    rankings,
+    consistencyRatios,
+  } = allocationData;
+
+  // State yang tidak persist (local state - reset setiap load)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [filteredOptions, setFilteredOptions] = useState<string[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
   const [isLoadingOptions, setIsLoadingOptions] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  // Tini bagian perbandingan
-  const [supplierTab, setSupplierTab] = useState(1);
-  const [comparisonData, setComparisonData] = useState<ComparisonData>({});
-  const [criteriaComparisonData, setCriteriaComparisonData] =
-    useState<CriteriaComparisonData>({});
-
   const [isLoading, setIsLoading] = useState(false);
-  const [rankings, setRankings] = useState<AHPResult[]>([]);
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [consistencyRatios, setConsistencyRatios] = useState<{
-    [key: string]: number;
-  }>({});
-
-  const [jumlahKebutuhan, setJumlahKebutuhan] = useState<number>(0);
-  const [, setReportData] = useState<ReportData | null>(null);
-  const [namaPemesan, setNamaPemesan] = useState("");
-  const [noTelpPemesan, setNoTelpPemesan] = useState("");
-  const [catatanValidasi, setCatatanValidasi] = useState("");
-  const [showSupplierData, setShowSupplierData] = useState(false);
-  const [isFormValid, setIsFormValid] = useState(false);
-  const [showRankingTable, setShowRankingTable] = useState(false);
   const [isCreatingReport, setIsCreatingReport] = useState(false);
-  const [, setHasCalculated] = useState(false);
-  const [isReportCreated, setIsReportCreated] = useState(false);
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [isFormValid, setIsFormValid] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [supplyOptions, setSupplyOptions] = useState<string[]>([]);
+
+  // Update functions untuk state yang persist
+  const updatePersistentState = useCallback(
+    (updates: Partial<typeof allocationData>) => {
+      updateAllocationData(updates);
+    },
+    [updateAllocationData]
+  );
+
+  const setSuppliers = useCallback(
+    (suppliers: Supplier[]) => updatePersistentState({ suppliers }),
+    [updatePersistentState]
+  );
+
+  const setCriteria = useCallback(
+    (criteria: Kriteria[]) => updatePersistentState({ criteria }),
+    [updatePersistentState]
+  );
+
+  const setSelectedSupply = useCallback(
+    (selectedSupply: string) => updatePersistentState({ selectedSupply }),
+    [updatePersistentState]
+  );
+
+  const setSupplierDetails = useCallback(
+    (supplierDetails: Record<number, SupplierDetail[]>) =>
+      updatePersistentState({ supplierDetails }),
+    [updatePersistentState]
+  );
+
+  const setComparisonData = useCallback(
+    (comparisonData: ComparisonData) =>
+      updatePersistentState({ comparisonData }),
+    [updatePersistentState]
+  );
+
+  const setCriteriaComparisonData = useCallback(
+    (criteriaComparisonData: CriteriaComparisonData) =>
+      updatePersistentState({ criteriaComparisonData }),
+    [updatePersistentState]
+  );
+
+  const setJumlahKebutuhan = useCallback(
+    (jumlahKebutuhan: number) => updatePersistentState({ jumlahKebutuhan }),
+    [updatePersistentState]
+  );
+
+  const setNamaPemesan = useCallback(
+    (namaPemesan: string) => updatePersistentState({ namaPemesan }),
+    [updatePersistentState]
+  );
+
+  const setNoTelpPemesan = useCallback(
+    (noTelpPemesan: string) => updatePersistentState({ noTelpPemesan }),
+    [updatePersistentState]
+  );
+
+  const setCatatanValidasi = useCallback(
+    (catatanValidasi: string) => updatePersistentState({ catatanValidasi }),
+    [updatePersistentState]
+  );
+
+  const setShowSupplierData = useCallback(
+    (showSupplierData: boolean) => updatePersistentState({ showSupplierData }),
+    [updatePersistentState]
+  );
+
+  const setShowRankingTable = useCallback(
+    (showRankingTable: boolean) => updatePersistentState({ showRankingTable }),
+    [updatePersistentState]
+  );
+
+  const setIsReportCreated = useCallback(
+    (isReportCreated: boolean) => updatePersistentState({ isReportCreated }),
+    [updatePersistentState]
+  );
+
+  const setSupplierTab = useCallback(
+    (supplierTab: number) => updatePersistentState({ supplierTab }),
+    [updatePersistentState]
+  );
+
+  const setRankings = useCallback(
+    (rankings: AHPResult[]) => updatePersistentState({ rankings }),
+    [updatePersistentState]
+  );
+
+  const setConsistencyRatios = useCallback(
+    (consistencyRatios: { [key: string]: number }) =>
+      updatePersistentState({ consistencyRatios }),
+    [updatePersistentState]
+  );
+  const setHasCalculated = useCallback(
+    (hasCalculated: boolean) => updatePersistentState({ hasCalculated }),
+    [updatePersistentState]
+  );
+
+  const setReportData = useCallback(
+    (reportData: ReportData | null) => updatePersistentState({ reportData }),
+    [updatePersistentState]
+  );
 
   const generateAHPDropdownOptions = (
     rowName: string,
@@ -153,6 +236,7 @@ export default function ReportPage() {
       jumlahKebutuhan > 0;
     setIsFormValid(isValid);
   }, [selectedSupply, namaPemesan, noTelpPemesan, jumlahKebutuhan]);
+
   useEffect(() => {
     const fetchSupplyOptions = async () => {
       setIsLoadingOptions(true);
@@ -180,15 +264,15 @@ export default function ReportPage() {
   };
 
   useEffect(() => {
-    if (searchTerm.trim() === "") {
+    if (selectedSupply.trim() === "") {
       setFilteredOptions(supplyOptions);
     } else {
       const filtered = supplyOptions.filter((option) =>
-        option.toLowerCase().includes(searchTerm.toLowerCase())
+        option.toLowerCase().includes(selectedSupply.toLowerCase())
       );
       setFilteredOptions(filtered);
     }
-  }, [searchTerm, supplyOptions]);
+  }, [selectedSupply, supplyOptions]);
 
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
@@ -203,37 +287,46 @@ export default function ReportPage() {
     };
   }, [isDropdownOpen]);
 
-  const fetchSuppliers = useCallback(async (supplyType: string) => {
-    if (!supplyType) return;
+  useEffect(() => {
+    console.log("=== Component Re-render ===");
+    console.log("criteriaComparisonData:", criteriaComparisonData);
+    console.log("Specific test value 5->6:", criteriaComparisonData[5]?.[6]);
+  }, [criteriaComparisonData]);
 
-    try {
-      setIsLoading(true);
-      const response = await getSupplierBySupply(supplyType);
-      const data = await response;
-      setSuppliers(data || []);
+  const fetchSuppliers = useCallback(
+    async (supplyType: string) => {
+      if (!supplyType) return;
 
-      const supplierDetailsMap: Record<number, SupplierDetail[]> = {};
-      for (const supplier of data || []) {
-        try {
-          const details = await getSuppliesBySupplier(supplier.id);
-          supplierDetailsMap[supplier.id] = details;
-        } catch (error) {
-          console.warn(
-            `Gagal mengambil data untuk supplier ${supplier.nama}:`,
-            error
-          );
-          supplierDetailsMap[supplier.id] = [];
+      try {
+        setIsLoading(true);
+        const response = await getSupplierBySupply(supplyType);
+        const data = await response;
+        setSuppliers(data || []);
+
+        const supplierDetailsMap: Record<number, SupplierDetail[]> = {};
+        for (const supplier of data || []) {
+          try {
+            const details = await getSuppliesBySupplier(supplier.id);
+            supplierDetailsMap[supplier.id] = details;
+          } catch (error) {
+            console.warn(
+              `Gagal mengambil data untuk supplier ${supplier.nama}:`,
+              error
+            );
+            supplierDetailsMap[supplier.id] = [];
+          }
         }
-      }
 
-      setSupplierDetails(supplierDetailsMap);
-    } catch (error) {
-      toast.error("Gagal memuat data supplier");
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+        setSupplierDetails(supplierDetailsMap);
+      } catch (error) {
+        toast.error("Gagal memuat data supplier");
+        console.error(error);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [setSupplierDetails, setSuppliers]
+  );
 
   const fetchCriteria = useCallback(async () => {
     try {
@@ -247,7 +340,7 @@ export default function ReportPage() {
       toast.error("Gagal memuat data kriteria");
       console.error(error);
     }
-  }, []);
+  }, [setCriteria, setSupplierTab]);
 
   useEffect(() => {
     if (selectedSupply) {
@@ -257,31 +350,46 @@ export default function ReportPage() {
   }, [selectedSupply, fetchSuppliers, fetchCriteria]);
 
   useEffect(() => {
-    const newCriteriaData: CriteriaComparisonData = {};
-    criteria.forEach((criteriaA) => {
-      newCriteriaData[criteriaA.id] = {};
-      criteria.forEach((criteriaB) => {
-        if (criteriaA.id !== criteriaB.id) {
-          newCriteriaData[criteriaA.id][criteriaB.id] = 1;
-        }
-      });
-    });
-    setCriteriaComparisonData(newCriteriaData);
-
-    const newComparisonData: ComparisonData = {};
-    criteria.forEach((criterion) => {
-      newComparisonData[criterion.id] = {};
-      suppliers.forEach((supplierA) => {
-        newComparisonData[criterion.id][supplierA.id] = {};
-        suppliers.forEach((supplierB) => {
-          if (supplierA.id !== supplierB.id) {
-            newComparisonData[criterion.id][supplierA.id][supplierB.id] = 1;
+    // Hanya inisialisasi jika data masih kosong
+    if (
+      !criteriaComparisonData ||
+      Object.keys(criteriaComparisonData).length === 0
+    ) {
+      const newCriteriaData: CriteriaComparisonData = {};
+      criteria.forEach((criteriaA) => {
+        newCriteriaData[criteriaA.id] = {};
+        criteria.forEach((criteriaB) => {
+          if (criteriaA.id !== criteriaB.id) {
+            newCriteriaData[criteriaA.id][criteriaB.id] = 1;
           }
         });
       });
-    });
-    setComparisonData(newComparisonData);
-  }, [criteria, suppliers]);
+      setCriteriaComparisonData(newCriteriaData);
+    }
+
+    if (!comparisonData || Object.keys(comparisonData).length === 0) {
+      const newComparisonData: ComparisonData = {};
+      criteria.forEach((criterion) => {
+        newComparisonData[criterion.id] = {};
+        suppliers.forEach((supplierA) => {
+          newComparisonData[criterion.id][supplierA.id] = {};
+          suppliers.forEach((supplierB) => {
+            if (supplierA.id !== supplierB.id) {
+              newComparisonData[criterion.id][supplierA.id][supplierB.id] = 1;
+            }
+          });
+        });
+      });
+      setComparisonData(newComparisonData);
+    }
+  }, [
+    criteria,
+    suppliers,
+    criteriaComparisonData,
+    comparisonData,
+    setComparisonData,
+    setCriteriaComparisonData,
+  ]);
 
   const getReciprocalValue = (value: number): number => {
     return Math.round((1 / value) * 100) / 100;
@@ -432,7 +540,6 @@ export default function ReportPage() {
 
   const handleSupplyChange = (supply: string) => {
     setSelectedSupply(supply);
-    setSearchTerm(supply);
     setComparisonData({});
     setCriteriaComparisonData({});
     setRankings([]);
@@ -448,7 +555,7 @@ export default function ReportPage() {
   // Handle dropdown input change
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setSearchTerm(value);
+    setSelectedSupply(value);
     setIsDropdownOpen(true);
   };
 
@@ -468,21 +575,22 @@ export default function ReportPage() {
     criteriaB: number,
     value: number
   ) => {
-    setCriteriaComparisonData((prev) => {
-      const newData = { ...prev };
+    // Ambil data dari context (pastikan sudah diambil sebelumnya)
+    console.log("Current criteriaComparisonData:", criteriaComparisonData);
+    console.log("Set A→B", criteriaA, criteriaB, value);
+    const newData = { ...criteriaComparisonData };
 
-      // Set the main value
-      if (!newData[criteriaA]) newData[criteriaA] = {};
-      newData[criteriaA][criteriaB] = value;
+    // Set the main value
+    if (!newData[criteriaA]) newData[criteriaA] = {};
+    newData[criteriaA][criteriaB] = value;
 
-      // Set the reciprocal value
-      if (!newData[criteriaB]) newData[criteriaB] = {};
-      newData[criteriaB][criteriaA] = getReciprocalValue(value);
+    // Set the reciprocal value
+    if (!newData[criteriaB]) newData[criteriaB] = {};
+    newData[criteriaB][criteriaA] = getReciprocalValue(value);
 
-      return newData;
-    });
-
-    // Clear error for this comparison
+    // Simpan ke context
+    setCriteriaComparisonData(newData);
+    console.log("New data to save:", newData);
     setErrors((prev) => {
       const newErrors = { ...prev };
       delete newErrors[`criteria_${criteriaA}_${criteriaB}`];
@@ -497,23 +605,24 @@ export default function ReportPage() {
     supplierB: number,
     value: number
   ) => {
-    setComparisonData((prev) => {
-      const newData = { ...prev };
+    // Ambil snapshot data sekarang
+    const newData = { ...comparisonData };
 
-      // Ensure nested structure exists
-      if (!newData[criteriaId]) newData[criteriaId] = {};
-      if (!newData[criteriaId][supplierA]) newData[criteriaId][supplierA] = {};
-      if (!newData[criteriaId][supplierB]) newData[criteriaId][supplierB] = {};
+    // Ensure nested structure exists
+    if (!newData[criteriaId]) newData[criteriaId] = {};
+    if (!newData[criteriaId][supplierA]) newData[criteriaId][supplierA] = {};
+    if (!newData[criteriaId][supplierB]) newData[criteriaId][supplierB] = {};
 
-      // Set the main value
-      newData[criteriaId][supplierA][supplierB] = value;
+    // Set the main value
+    newData[criteriaId][supplierA][supplierB] = value;
 
-      // Set the reciprocal value
-      newData[criteriaId][supplierB][supplierA] = getReciprocalValue(value);
+    // Set the reciprocal value
+    newData[criteriaId][supplierB][supplierA] = getReciprocalValue(value);
 
-      return newData;
-    });
+    // ✅ Kirim ke setter dari context
+    setComparisonData(newData);
 
+    // Hapus error
     setErrors((prev) => {
       const newErrors = { ...prev };
       delete newErrors[`supplier_${criteriaId}_${supplierA}_${supplierB}`];
@@ -549,7 +658,7 @@ export default function ReportPage() {
       return ci / ri;
     },
     []
-  ); 
+  );
 
   // Validate all comparisons
   const validateComparisons = useCallback((): boolean => {
@@ -610,6 +719,7 @@ export default function ReportPage() {
     criteriaComparisonData,
     suppliers,
     calculateConsistencyRatio,
+    setConsistencyRatios,
   ]);
 
   const handleCalculate = useCallback(async () => {
@@ -672,6 +782,19 @@ export default function ReportPage() {
         }
       }
 
+      if (
+        !selectedSupply ||
+        !jumlahKebutuhan ||
+        Object.keys(transformedCriteriaComparisons).length === 0 ||
+        Object.keys(transformedSupplierComparisons).length === 0
+      ) {
+        toast.error(
+          "Pastikan semua data telah diisi dan perbandingan lengkap."
+        );
+        setIsLoading(false);
+        return;
+      }
+
       // Prepare API payload
       const payload: GenerateRankingPayload = {
         nama_supply: selectedSupply,
@@ -710,7 +833,6 @@ export default function ReportPage() {
         setRankings(allocatedRankings);
         setShowRankingTable(true);
         setHasCalculated(true);
-        console.log("Peler abu Abu: ", allocatedRankings);
         toast.success("Prioritas dan alokasi berhasil dihitung");
       } else {
         toast.error("Perhitungan gagal - tidak ada data ranking yang diterima");
@@ -729,6 +851,9 @@ export default function ReportPage() {
     validateComparisons,
     suppliers,
     supplierDetails,
+    setRankings,
+    setShowRankingTable,
+    setHasCalculated,
   ]);
 
   const validateTotalCapacity = (
@@ -848,7 +973,7 @@ export default function ReportPage() {
                         ? "Memuat data supply..."
                         : "Pilih atau ketik nama supply"
                     }
-                    value={searchTerm}
+                    value={selectedSupply}
                     onChange={handleInputChange}
                     onFocus={handleInputFocus}
                     disabled={isLoadingOptions || showSupplierData}
@@ -894,7 +1019,7 @@ export default function ReportPage() {
                       ))
                     ) : (
                       <div className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                        {searchTerm.trim() === ""
+                        {selectedSupply.trim() === ""
                           ? "Tidak ada data supply"
                           : "Tidak ada hasil yang ditemukan"}
                       </div>
@@ -911,7 +1036,10 @@ export default function ReportPage() {
                 <input
                   type="number"
                   value={jumlahKebutuhan || ""}
-                  onChange={(e) => setJumlahKebutuhan(Number(e.target.value))}
+                  onChange={(e) => {
+                    const value = Number(e.target.value);
+                    setJumlahKebutuhan(value);
+                  }}
                   disabled={showSupplierData}
                   className="h-11 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 text-sm text-gray-900 dark:text-white focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/10 disabled:opacity-50"
                   placeholder="Contoh: 1000"
@@ -927,7 +1055,9 @@ export default function ReportPage() {
                 <input
                   type="text"
                   value={namaPemesan}
-                  onChange={(e) => setNamaPemesan(e.target.value)}
+                  onChange={(e) => {
+                    setNamaPemesan(e.target.value);
+                  }}
                   disabled={showSupplierData}
                   className="h-11 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 text-sm text-gray-900 dark:text-white focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/10 disabled:opacity-50"
                   placeholder="Masukkan nama pemesan"
@@ -942,7 +1072,9 @@ export default function ReportPage() {
                 <input
                   type="tel"
                   value={noTelpPemesan}
-                  onChange={(e) => setNoTelpPemesan(e.target.value)}
+                  onChange={(e) => {
+                    setNoTelpPemesan(e.target.value);
+                  }}
                   disabled={showSupplierData}
                   className="h-11 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 text-sm text-gray-900 dark:text-white focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/10 disabled:opacity-50"
                   placeholder="Masukkan no telepon"
@@ -957,7 +1089,9 @@ export default function ReportPage() {
               </label>
               <textarea
                 value={catatanValidasi}
-                onChange={(e) => setCatatanValidasi(e.target.value)}
+                onChange={(e) => {
+                  setCatatanValidasi(e.target.value);
+                }}
                 disabled={showSupplierData}
                 className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/10 disabled:opacity-50"
                 rows={3}
@@ -1192,11 +1326,11 @@ export default function ReportPage() {
                                     </span>
                                   ) : criteriaA.id < criteriaB.id ? (
                                     <select
-                                      value={
+                                      value={String(
                                         criteriaComparisonData[criteriaA.id]?.[
                                           criteriaB.id
                                         ] || 1
-                                      }
+                                      )}
                                       onChange={(e) =>
                                         handleCriteriaComparisonChange(
                                           criteriaA.id,
@@ -1498,6 +1632,17 @@ export default function ReportPage() {
                             <>📄 Buat Laporan PDF</>
                           )}
                         </button>
+                        <div className="mt-4 flex justify-end">
+                          <button
+                            onClick={() => {
+                              clearAllocationData();
+                              location.reload();
+                            }}
+                            className="px-4 py-2 text-sm bg-red-100 hover:bg-red-200 text-red-800 rounded"
+                          >
+                            🗑 Hapus Semua Data Perbandingan
+                          </button>
+                        </div>
                       </div>
 
                       <div className="overflow-x-auto mt-5">

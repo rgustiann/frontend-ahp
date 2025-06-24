@@ -229,16 +229,52 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ navItems }) => {
         <Link href="">
           {isExpanded || isHovered || isMobileOpen ? (
             <span className="text-3xl font-bold text-gray-800 dark:text-white">
-              JOKOWI
+              PT. PINDAD
             </span>
           ) : (
-            <span className="text-xl font-bold text-gray-800 dark:text-white">
-              JKW
-            </span>
+            <Image
+              width={50}
+              height={50}
+              src="/images/logo/logo_pindad.png"
+              alt="Logo"
+              priority
+            />
           )}
         </Link>
       </div>
       <div className="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
+
+        <div className="mb-6 px-4 text-gray-700 dark:text-gray-300">
+          {(isExpanded || isHovered || isMobileOpen) && (
+            <>
+              <h2 className="text-xs uppercase font-semibold mb-2 text-gray-400">
+                Visi
+              </h2>
+              <p className="text-sm leading-snug mb-4">
+                Menjadi perusahaan manufaktur pertahanan dan keamanan serta
+                produk industrial terkemuka di Asia pada tahun 2026 melalui
+                inovasi teknologi.
+              </p>
+
+              <h2 className="text-xs uppercase font-semibold mb-2 text-gray-400">
+                Misi
+              </h2>
+              <ul className="list-disc list-inside text-sm space-y-1">
+                <li>
+                  Menghasilkan produk dan jasa berkualitas untuk mendukung
+                  kemandirian industri nasional.
+                </li>
+                <li>
+                  Meningkatkan nilai perusahaan melalui tata kelola profesional
+                  dan akuntabel.
+                </li>
+                <li>Mengembangkan SDM unggul, berintegritas, dan inovatif.</li>
+                <li>Mendorong kolaborasi strategis dalam dan luar negeri.</li>
+              </ul>
+            </>
+          )}
+        </div>
+
         <nav className="mb-6">
           <div className="flex flex-col gap-4">
             <div>

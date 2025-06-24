@@ -149,3 +149,17 @@ export interface CreateReportPayload {
     alokasi_kebutuhan: number;
   }>;
 }
+
+export interface ComparisonData {
+  [criteriaId: number]: {
+    [supplierA: number]: {
+      [supplierB: number]: number;
+    };
+  };
+}
+
+export interface CriteriaComparisonData {
+  [criteriaA: number]: {
+    [criteriaB: number]: number;
+  };
+}

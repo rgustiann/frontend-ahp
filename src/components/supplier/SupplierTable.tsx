@@ -540,14 +540,10 @@ export default function TabelSupplier() {
             (nk) => nk.kriteriaId === existing.kriteriaId
           );
           if (!stillExists && existing.id) {
-            console.log(
-              `DELETE: Kriteria ${existing.namaKriteria} removed from master`
-            );
             await deleteNilaiKriteria(existing.id);
           }
         }
       } else {
-        console.log("Creating new nilai kriteria entries");
 
         for (const nilaiItem of nilaiKriteriaList) {
           if (nilaiItem.nilai > 0) {
@@ -556,7 +552,6 @@ export default function TabelSupplier() {
             );
             if (kriteria) {
               try {
-                console.log(`CREATE: ${kriteria.nama} = ${nilaiItem.nilai}`);
                 await addNilaiKriteria(supplierId, {
                   namaKriteria: kriteria.nama,
                   nilai: nilaiItem.nilai,
@@ -569,14 +564,11 @@ export default function TabelSupplier() {
               }
             }
           } else {
-            console.log(`SKIP: ${nilaiItem.kriteriaId} = 0`);
           }
         }
       }
 
-      console.log("Nilai kriteria processing completed");
     } catch (error) {
-      console.error("Gagal menyimpan nilai kriteria:", error);
       throw error;
     }
   };
@@ -604,12 +596,11 @@ export default function TabelSupplier() {
 
       // Delete nilai kriteria
       const nilaiKriteria = supplierNilaiKriteria[id] || [];
-      console.log("Deleting", nilaiKriteria.length, "nilai kriteria entries");
+
       for (const nilai of nilaiKriteria) {
         if (nilai.id) {
           try {
             await deleteNilaiKriteria(nilai.id);
-            console.log("Deleted nilai kriteria:", nilai.namaKriteria);
           } catch (error) {
             console.warn(
               `Gagal menghapus nilai kriteria ${nilai.namaKriteria}:`,
@@ -621,7 +612,7 @@ export default function TabelSupplier() {
 
       // Finally delete the supplier
       await deleteSupplier(id);
-      console.log("Supplier deleted successfully");
+
 
       await fetchData();
       closeDeleteDialog();
