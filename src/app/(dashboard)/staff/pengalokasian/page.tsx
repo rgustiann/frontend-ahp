@@ -755,15 +755,13 @@ export default function ReportPage() {
         const criteriaId = Number(criteriaIdStr);
         transformedSupplierComparisons[criteriaId] = {};
 
-        // Type guard to ensure supplierComparisons is an object
         if (supplierComparisons && typeof supplierComparisons === "object") {
           for (const [supplierAIdStr, comparisons] of Object.entries(
             supplierComparisons
           )) {
-            const supplierAId = supplierAIdStr; // Convert to string for API
+            const supplierAId = Number(supplierAIdStr);
             transformedSupplierComparisons[criteriaId][supplierAId] = {};
 
-            // Type guard and assertion for comparisons
             if (
               comparisons &&
               typeof comparisons === "object" &&
@@ -772,7 +770,7 @@ export default function ReportPage() {
               for (const [supplierBIdStr, value] of Object.entries(
                 comparisons as Record<string, number>
               )) {
-                const supplierBId = supplierBIdStr; // Convert to string for API
+                const supplierBId = Number(supplierBIdStr);
                 transformedSupplierComparisons[criteriaId][supplierAId][
                   supplierBId
                 ] = value;
@@ -802,8 +800,11 @@ export default function ReportPage() {
         criteria_comparisons: transformedCriteriaComparisons,
         supplier_comparisons: transformedSupplierComparisons,
       };
+
+      console.log("Data Payload AHP: ", payload);
       // Call API
       const response = await generateRanking(payload);
+      console.log("hasil perhitungan: ", response);
       if (response && response.data && Array.isArray(response.data.rankings)) {
         const transformedRankings = response.data.rankings.map((result) => {
           const supplier = suppliers.find((s) => s.id === result.supplierId);
