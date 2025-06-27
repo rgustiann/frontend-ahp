@@ -39,7 +39,7 @@ export default function AuthLayout({
                 Divisi Alat Berat
               </p>
               <p className="text-sky-900 dark:text-white/60 text-sm mt-2">
-                Sistem Informasi Pemilihan Prioritas Supplier
+                Sistem Informasi Penentuan Prioritas Supplier
               </p>
               <p className="text-sky-900 dark:text-white/60 text-sm">
                 Metode Analytical Hierarchy Process (AHP)
