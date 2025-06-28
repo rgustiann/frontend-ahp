@@ -3,12 +3,12 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { getReportByIdStaff } from "@/lib/api/reportService";
-import { ReportData } from "@/types/report";
+import { ReportResponse } from "@/types/report";
 import ReportTable from "@/components/pelaporan/ReportTable";
 
 export default function StaffReportPage() {
   const { user, loading } = useAuth();
-  const [reports, setReports] = useState<ReportData[]>([]);
+  const [reports, setReports] = useState<ReportResponse[]>([]);
 
   useEffect(() => {
     if (!loading && user?.id) {
