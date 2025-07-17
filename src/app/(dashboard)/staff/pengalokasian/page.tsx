@@ -207,7 +207,7 @@ export default function ReportPage() {
     for (let i = 9; i >= 2; i--) {
       options.push({
         value: 1 / i,
-        label: `${colName} lebih penting dari ${rowName} (1/${i})`,
+        label: ` 1/${i} (${colName} lebih penting dari ${rowName}) `,
       });
     }
 
@@ -221,7 +221,7 @@ export default function ReportPage() {
     for (let i = 2; i <= 9; i++) {
       options.push({
         value: i,
-        label: `${rowName} lebih penting dari ${colName} (${i})`,
+        label: `${i} (${rowName} lebih penting dari ${colName}) `,
       });
     }
 
